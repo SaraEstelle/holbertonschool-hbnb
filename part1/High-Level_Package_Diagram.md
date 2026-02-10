@@ -59,3 +59,94 @@ This approach reduces coupling between layers and improves maintainability and s
 ## High-Level Package Diagram
 
 The following diagram illustrates the overall architecture of the HBnB Evolution application and the communication pathways between layers.
+
+---
+
+## High-Level Package Diagram (Version 1)
+
+```mermaid
+flowchart TB
+
+%% ===== PRESENTATION LAYER =====
+subgraph Presentation_Layer["Presentation Layer (API & Services)"]
+    API["REST API\n(Endpoints)"]
+    Services["Application Services"]
+end
+
+%% ===== FACADE =====
+Facade["Facade\n(Application Interface)"]
+
+%% ===== BUSINESS LOGIC LAYER =====
+subgraph Business_Logic_Layer["Business Logic Layer (Models & Rules)"]
+    UserModel["User Model"]
+    PlaceModel["Place Model"]
+    ReviewModel["Review Model"]
+    AmenityModel["Amenity Model"]
+
+    BusinessRules["Business Rules\n(Validation, Permissions)"]
+end
+
+%% ===== PERSISTENCE LAYER =====
+subgraph Persistence_Layer["Persistence Layer"]
+    Repositories["Repositories / DAO"]
+    Database["Database"]
+end
+
+%% ===== RELATIONSHIPS =====
+API --> Services
+Services --> Facade
+
+Facade --> UserModel
+Facade --> PlaceModel
+Facade --> ReviewModel
+Facade --> AmenityModel
+Facade --> BusinessRules
+
+UserModel --> Repositories
+PlaceModel --> Repositories
+ReviewModel --> Repositories
+AmenityModel --> Repositories
+
+Repositories --> Database
+```
+---
+## High-Level Package Diagram (Version 2)
+
+```mermaid
+flowchart TB
+
+subgraph Presentation["Presentation Layer"]
+    API["REST API"]
+    Services["Application Services"]
+end
+
+Facade["Facade\n(Application Interface)"]
+
+subgraph Business["Business Logic Layer"]
+    User["User"]
+    Place["Place"]
+    Review["Review"]
+    Amenity["Amenity"]
+end
+
+subgraph Persistence["Persistence Layer"]
+    Repository["Repositories"]
+    Database["Database"]
+end
+
+API --> Services
+Services --> Facade
+
+Facade --> User
+Facade --> Place
+Facade --> Review
+Facade --> Amenity
+
+User --> Repository
+Place --> Repository
+Review --> Repository
+Amenity --> Repository
+
+Repository --> Database
+```
+---
