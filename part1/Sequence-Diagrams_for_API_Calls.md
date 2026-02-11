@@ -19,14 +19,26 @@ sequenceDiagram
     participant UserModel
     participant Repository
 
-    User ->> API: POST /users (registration data)
-    API ->> Facade: register_user(data)
-    Facade ->> UserModel: create_user(data)
-    UserModel ->> Repository: save(user)
-    Repository -->> UserModel: user_saved
-    UserModel -->> Facade: user_created
-    Facade -->> API: success response
-    API -->> User: 201 Created
+    User ->> API: POST /users
+
+    API ->> API: validate request format
+
+    alt invalid data
+        API -->> User: 400 Bad Request
+    else valid
+        API ->> Facade: register_user(data)
+        Facade ->> UserModel: validate_business_rules(email uniqueness, format)
+
+        alt rule violation
+            Facade -->> API: validation error
+            API -->> User: 422 Unprocessable Entity
+        else ok
+            UserModel ->> Repository: save(user)
+            Repository -->> Facade: saved
+            Facade -->> API: success
+            API -->> User: 201 Created
+        end
+    end
 ```
 ---
 ## Place creation : owner
@@ -41,14 +53,24 @@ sequenceDiagram
     participant Repository
 
     Owner ->> API: POST /places
-    API ->> Facade: create_place(data, owner_id)
-    Facade ->> PlaceModel: validate_owner(owner_id)
-    PlaceModel ->> PlaceModel: create_place(data)
-    PlaceModel ->> Repository: save(place)
-    Repository -->> PlaceModel: place_saved
-    PlaceModel -->> Facade: place_created
-    Facade -->> API: success response
-    API -->> Owner: 201 Created
+
+    API ->> API: validate request
+
+    alt invalid
+        API -->> Owner: 400 Bad Request
+    else valid
+        API ->> Facade: create_place(data, owner_id)
+        Facade ->> PlaceModel: validate_owner + business rules
+
+        alt violation
+            API -->> Owner: 403/422 Error
+        else ok
+            PlaceModel ->> Repository: save(place)
+            Repository -->> Facade: saved
+            Facade -->> API: success
+            API -->> Owner: 201 Created
+        end
+    end
 ```
 ---
 ## Diagramme 3 : Review Submission (Visitor)
@@ -65,13 +87,24 @@ sequenceDiagram
     participant Repository
 
     Visitor ->> API: POST /reviews
-    API ->> Facade: create_review(data)
-    Facade ->> ReviewModel: validate_review(data)
-    ReviewModel ->> Repository: save(review)
-    Repository -->> ReviewModel: review_saved
-    ReviewModel -->> Facade: review_created
-    Facade -->> API: success response
-    API -->> Visitor: 201 Created
+
+    API ->> API: validate request
+
+    alt invalid
+        API -->> Visitor: 400 Bad Request
+    else valid
+        API ->> Facade: create_review(data)
+        Facade ->> ReviewModel: validate rules (rating, existence, uniqueness)
+
+        alt violation
+            API -->> Visitor: 422/409 Error
+        else ok
+            ReviewModel ->> Repository: save(review)
+            Repository -->> Facade: saved
+            Facade -->> API: success
+            API -->> Visitor: 201 Created
+        end
+    end
 ````
 ---
 ## Diagramm : Fetching a List of Places
@@ -86,13 +119,18 @@ sequenceDiagram
     participant PlaceModel
     participant Repository
 
-    User ->> API: GET /places (filters)
-    API ->> Facade: get_places(filters)
-    Facade ->> PlaceModel: fetch_places(filters)
-    PlaceModel ->> Repository: query_places(filters)
-    Repository -->> PlaceModel: places_list
-    PlaceModel -->> Facade: places
-    Facade -->> API: response
-    API -->> User: 200 OK (places list)
+    User ->> API: GET /places
+
+    API ->> API: validate filters
+
+    alt invalid filters
+        API -->> User: 400 Bad Request
+    else valid
+        API ->> Facade: get_places(filters)
+        Facade ->> Repository: query_places(filters)
+        Repository -->> Facade: places
+        Facade -->> API: response
+        API -->> User: 200 OK
+    end
 ```
 ---
