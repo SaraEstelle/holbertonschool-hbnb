@@ -1,0 +1,44 @@
+sequenceDiagram
+    actor User as User/Client
+    participant API as Presentation Layer<br/>(API/Services)
+    participant BL as Business Logic Layer<br/>(User Model)
+    participant DB as Persistence Layer<br/>(Database)
+
+    User->>API: POST /api/users/register<br/>{first_name, last_name, email, password}
+    
+    activate API
+    API->>API: Validate input format<br/>(email format, password strength)
+    
+    alt Invalid input
+        API-->>User: 400 Bad Request<br/>{error: "Invalid data"}
+    end
+    
+    API->>BL: create_user(user_data)
+    activate BL
+    
+    BL->>BL: Check if email already exists
+    BL->>DB: query(email)
+    activate DB
+    DB-->>BL: email_exists: bool
+    deactivate DB
+    
+    alt Email already exists
+        BL-->>API: Error: Email already registered
+        API-->>User: 409 Conflict<br/>{error: "Email already exists"}
+    end
+    
+    BL->>BL: hash_password(password)
+    BL->>BL: Generate UUID
+    BL->>BL: Set created_at timestamp
+    
+    BL->>DB: INSERT INTO users<br/>(id, first_name, last_name,<br/>email, password_hash, created_at)
+    activate DB
+    DB-->>BL: Success (user_id)
+    deactivate DB
+    
+    BL-->>API: User object created
+    deactivate BL
+    
+    API->>API: Generate authentication token
+    API-->>User: 201 Created<br/>{user_id, token, message: "Registration successful"}
+    deactivate API
