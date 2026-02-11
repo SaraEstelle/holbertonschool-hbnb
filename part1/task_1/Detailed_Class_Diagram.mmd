@@ -36,21 +36,12 @@ classDiagram
         -string phone_number
         -boolean is_pets
         -string location
-        +update_profile(data: dict) void
-        +delete_account() void
-        +upload_profile_picture() void
-        +validate_email() boolean
-        +get_user_info() dict
+
+
     }
 
     class Host {
-        -List~Place~ owned_places
-        +create_place(place_data: dict) Place
-        +update_place(place_id: UUID, data: dict) void
-        +delete_place(place_id: UUID) void
-        +view_my_places() List~Place~
-        +manage_bookings() void
-        +respond_to_reviews() void
+
     }
 
     class Admin {
@@ -74,12 +65,8 @@ classDiagram
         +create() void
         +update(data: dict) void
         +delete() void
-        +add_amenity(amenity: Amenity) void
-        +remove_amenity(amenity: Amenity) void
-        +get_amenities() List~Amenity~
-        +get_reviews() List~Review~
-        +validate_coordinates() boolean
-        +validate_price() boolean
+
+
     }
 
     class Review {
@@ -99,8 +86,7 @@ classDiagram
         -string name
         -string description
         +create() void
-        +update(data: dict) void
-        +delete() void
+
         +get_places() List~Place~
     }
 

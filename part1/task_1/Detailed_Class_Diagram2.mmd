@@ -1,0 +1,134 @@
+---
+config:
+  layout: elk
+---
+classDiagram
+direction TB
+    class Base {
+	    +id : UUID
+	    +created_at : datetime
+	    +update_at : datetime
+    }
+
+    class User {
+	    +is_authenticated : bool
+	    +first name : str
+	    +last name : str
+	    +email : str
+	    +password : str
+	    +is admin : bool
+	    +update User
+	    +date of birth : date
+	    +profil picture :
+	    +phone number : str
+	    +pets : bool
+	    +location : str
+	    +is_admin : bool
+	    +is_host : bool
+	    +login(email: str, password: str) bool
+        -hashPassword(password: str) str
+        +update_profile(data: dict) void
+        +delete_account() void
+        +validate_email() bool
+        +get_user_info() dict
+        +upload_profile_picture() void
+        +book_place(place_id: UUID) Booking
+        +view_bookings() List~Booking~
+	    +isAdult() bool
+	    +getFullName() str
+        -List~Place~ owned_places
+        +create_place(place_data: dict) Place
+        +update_place(place_id: UUID, data: dict) void
+        +delete_place(place_id: UUID) void
+        +view_my_places() List~Place~
+        +manage_bookings() void
+        +respond_to_reviews() void
+    }
+
+    class Admin {
+        -List~string~ permissions
+        +manage_users() void
+        +manage_places() void
+        +manage_reviews() void
+        +delete_user(user_id: UUID) void
+        +delete_place(place_id: UUID) void
+        +view_analytics() dict
+        +moderate_content() void
+    }
+
+    class Place {
+	    +title : str
+	    +description : str
+	    -max_guests : int
+	    -day_price : float
+	    -latitude : float
+	    -longitude : float
+	    -owner_id: UUID
+	    -is_available: bool
+	    +place created
+	    +place updated
+	    +place deleted
+	    +place listed
+	    +set_price(day_price: float)
+	    +is_available()
+        +add_amenity(amenity: Amenity) void
+        +remove_amenity(amenity: Amenity) void
+        +get_amenities() List~Amenity~
+        +get_reviews() List~Review~
+        +validate_coordinates() bool
+        +validate_price() bool
+    }
+
+    class Amenity {
+	    +name : str
+	    +description : str
+	    +icon_url : str
+        +update(data: dict) void
+        +delete() void
+    }
+
+    class Review {
+	    +place_id : UUID
+	    +User_id : UUID
+	    +Rating : int
+	    +Comment : str
+	    +get_rating() int
+	    +get_comment() str
+	    +update_review(rating: int, comment: str) void
+	    +delete_review() void
+	    +validate_rating() bool
+    }
+
+    class Visitor {
+        +SearchFilter
+        +create User_acc
+    }
+
+    class SearchFilter {
+	    +location : str
+	    +min_price : float
+	    +max_price : float
+	    +max_guests : int
+	    +amenities : List~Amenity~
+	    +start_date : date
+	    +end_date : date
+	    +search() List~Place~
+    }
+
+
+    Visitor --> SearchFilter
+    User --> SearchFilter
+    SearchFilter --> Place
+    Place ..> Amenity
+    Place --> Review
+    User <|-- Admin
+    Base <|-- User
+    Base <|-- Visitor
+    Base <|-- Place
+    Base <|-- Amenity
+    Base <|-- Review
+    Base <|-- Admin
+
+    User "1" --> "0..*" Place : owns
+    User "1" --> "0..*" Review : writes
+    Place "1" --> "0..*" Review : has
