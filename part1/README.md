@@ -110,4 +110,4 @@ PLANCHON VALENTIN
 ROSSI DAMIEN
 
 HBnB Evolution Project – Part 1
-Holberton School
+Holberton School - Thonon
