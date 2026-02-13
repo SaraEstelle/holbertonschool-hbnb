@@ -1,0 +1,68 @@
+sequenceDiagram
+    actor User as Authenticated User<br/>(Host)
+    participant API as Presentation Layer<br/>(API/Services)
+    participant Auth as Authentication<br/>Service
+    participant BL as Business Logic Layer<br/>(Place Model)
+    participant AmenityBL as Business Logic Layer<br/>(Amenity Model)
+    participant DB as Persistence Layer<br/>(Database)
+
+    User->>API: POST /api/places<br/>{title, description, price, latitude,<br/>longitude, amenities: [amenity_ids]}
+    
+    activate API
+    API->>Auth: Validate token
+    activate Auth
+    Auth-->>API: user_id, is_host
+    deactivate Auth
+    
+    alt Not authenticated or not a host
+        API-->>User: 401 Unauthorized<br/>or 403 Forbidden
+    end
+    
+    API->>API: Validate input data<br/>(price > 0, valid coordinates)
+    
+    alt Invalid data
+        API-->>User: 400 Bad Request
+    end
+    
+    API->>BL: create_place(place_data, owner_id)
+    activate BL
+    
+    BL->>BL: Validate coordinates<br/>(-90 <= lat <= 90, -180 <= lng <= 180)
+    BL->>BL: Validate price (price > 0)
+    BL->>BL: Generate UUID
+    BL->>BL: Set created_at timestamp
+    BL->>BL: Set is_available = true
+    
+    BL->>DB: INSERT INTO places<br/>(id, title, description, price,<br/>latitude, longitude, owner_id,<br/>is_available, created_at)
+    activate DB
+    DB-->>BL: Success (place_id)
+    deactivate DB
+    
+    loop For each amenity_id in amenities
+        BL->>AmenityBL: verify_amenity_exists(amenity_id)
+        activate AmenityBL
+        AmenityBL->>DB: SELECT FROM amenities WHERE id=amenity_id
+        activate DB
+        DB-->>AmenityBL: amenity_data
+        deactivate DB
+        AmenityBL-->>BL: amenity_exists: bool
+        deactivate AmenityBL
+        
+        alt Amenity exists
+            BL->>DB: INSERT INTO place_amenities<br/>(place_id, amenity_id)
+            activate DB
+            DB-->>BL: Success
+            deactivate DB
+        end
+    end
+    
+    BL->>DB: SELECT place with amenities<br/>(JOIN place_amenities)
+    activate DB
+    DB-->>BL: Complete place object
+    deactivate DB
+    
+    BL-->>API: Place object created with amenities
+    deactivate BL
+    
+    API-->>User: 201 Created<br/>{place_id, title, amenities, message}
+    deactivate API

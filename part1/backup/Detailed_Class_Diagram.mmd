@@ -1,0 +1,106 @@
+classDiagram
+    class BaseModel {
+        <<abstract>>
+        -UUID id
+        -DateTime created_at
+        -DateTime updated_at
+        +save() void
+        +to_dict() dict
+        +__str__() string
+    }
+
+    class Visitor {
+        +browse_places() List~Place~
+        +view_place_details(place_id: UUID) Place
+        +search_places(criteria: dict) List~Place~
+        +filter_by_location(location: string) List~Place~
+    }
+
+    class Guest {
+        -string first_name
+        -string last_name
+        -string email
+        -string password
+        +register() void
+        +login() boolean
+        +book_place(place_id: UUID) Booking
+        +leave_review(place_id: UUID) Review
+        +view_bookings() List~Booking~
+        +hash_password() void
+        +verify_password(password: string) boolean
+    }
+
+    class User {
+        -string date_of_birth
+        -string profile_picture
+        -string phone_number
+        -boolean is_pets
+        -string location
+
+
+    }
+
+    class Host {
+
+    }
+
+    class Admin {
+        -List~string~ permissions
+        +manage_users() void
+        +manage_places() void
+        +manage_reviews() void
+        +delete_user(user_id: UUID) void
+        +delete_place(place_id: UUID) void
+        +view_analytics() dict
+        +moderate_content() void
+    }
+
+    class Place {
+        -string title
+        -string description
+        -float price
+        -float latitude
+        -float longitude
+        -UUID owner_id
+        +create() void
+        +update(data: dict) void
+        +delete() void
+
+
+    }
+
+    class Review {
+        -UUID place_id
+        -UUID user_id
+        -int rating
+        -string comment
+        +create() void
+        +update(data: dict) void
+        +delete() void
+        +validate_rating() boolean
+        +get_place() Place
+        +get_user() User
+    }
+
+    class Amenity {
+        -string name
+        -string description
+        +create() void
+
+        +get_places() List~Place~
+    }
+
+    Visitor --|> BaseModel
+    Guest --|> Visitor
+    User --|> Guest
+    Host --|> User
+    Admin --|> User
+    Place --|> BaseModel
+    Review --|> BaseModel
+    Amenity --|> BaseModel
+
+    Host "1" --> "0..*" Place : owns
+    User "1" --> "0..*" Review : writes
+    Place "1" --> "0..*" Review : has
+    Place "0..*" <--> "0..*" Amenity : features
+    
