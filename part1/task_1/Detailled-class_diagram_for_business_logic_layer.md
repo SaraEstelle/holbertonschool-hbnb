@@ -108,8 +108,6 @@ class Admin {
   manage_amenities()
 }
 
-User <|-- Admin
-
 %% ===== PLACE =====
 class Place {
   UUID id
@@ -159,7 +157,7 @@ User "1" --> "0..*" Place : owns (Owner)
 
 %% VISITOR ROLE
 User "1" --> "0..*" Review : writes (Visitor)
-
+User <|-- Admin
 %% PLACE RELATIONS
 Place "1" --> "0..*" Review : has
 Place "0..*" -- "0..*" Amenity : includes
