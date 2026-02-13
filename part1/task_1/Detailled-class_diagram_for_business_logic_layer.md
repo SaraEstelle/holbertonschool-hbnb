@@ -1,82 +1,11 @@
----
-## Detailed Class Diagram – Business Logic Layer
+# Diagramme de Classes Détaillé - Couche Logique Métier
 
-The Business Logic layer contains the core entities of the HBnB application: User, Place, Review, and Amenity. These classes represent the main business concepts and enforce the application’s business rules.
+## Introduction
 
-Each entity includes a unique identifier (UUID) as well as creation and update timestamps to ensure traceability and auditability.
+Ce diagramme représente l'architecture détaillée de la couche logique métier (Business Logic Layer) de l'application HBnB. Il illustre les entités principales du système, leurs attributs, leurs méthodes et les relations qui les lient.
 
-A User can own multiple Places and write multiple Reviews. A Place belongs to a single User, can have multiple Reviews, and can include multiple Amenities. Reviews are associated with both a User and a Place, representing feedback left by users on places they have visited.
+## Diagramme de Classes
 
-The Amenity entity represents facilities that can be associated with multiple places, resulting in a many-to-many relationship.
-
-This diagram provides a clear and structured representation of the core business logic and serves as a foundation for the implementation phase.
----
----
-## Datailled class Diagram for business logic layer (version 1)
----
-
-```mermaid
-
-classDiagram
-    class User {
-        -UUID id
-        -string first_name
-        -string last_name
-        -string email
-        -string password
-        -bool is_admin
-        -datetime created_at
-        -datetime updated_at
-        +create()
-        +update()
-        +delete()
-    }
-    
-    class Place {
-        -UUID id
-        -string title
-        -string description
-        -float price
-        -float latitude
-        -float longitude
-        -datetime created_at
-        -datetime updated_at
-        +create()
-        +update()
-        +delete()
-    }
-    
-    class Review {
-        -UUID id
-        -int rating
-        -string comment
-        -datetime created_at
-        -datetime updated_at
-        +create()
-        +update()
-        +delete()
-    }
-    
-    class Amenity {
-        -UUID id
-        -string name
-        -string description
-        -datetime created_at
-        -datetime updated_at
-        +create()
-        +update()
-        +delete()
-    }
-    
-    User "1" --> "0..*" Place : owns
-    User "1" --> "0..*" Review : writes
-    Place "1" --> "0..*" Review : has
-    Place "0..*" -- "0..*" Amenity : includes
-
-```
----
-## Datailled class Diagram for business logic layer (version 2)
----
 ```mermaid
 classDiagram
     %% ===== BASE USER =====
@@ -152,24 +81,64 @@ classDiagram
     %% PLACE RELATIONS
     Place "1" --> "0..*" Review : has
     Place "0..*" -- "0..*" Amenity : includes
-
 ```
----
-### Explication of this version
----
-## Detailed Class Diagram – Business Logic Layer (version 2)
----
 
-The Business Logic layer is centered around the User entity, which represents all users of the HBnB application. Different roles are derived from the User entity based on behavior and permissions.
+## Résumé Explicatif
 
-An Admin is a specialized type of User with elevated privileges, represented through inheritance. Admin users can manage users, places, reviews, and amenities across the system.
+### Classes Principales
 
-A User can act as an Owner if they own one or more Places. This role is represented through the association between User and Place. Owners are responsible for creating, updating, and deleting their own places.
+#### 1. User (Utilisateur)
+La classe `User` représente l'utilisateur de base du système. Elle contient :
+- **Attributs** : identifiant unique (UUID), informations personnelles (prénom, nom, email), mot de passe chiffré, et horodatages de création/modification
+- **Méthodes** : inscription (`register()`), mise à jour du profil (`update_profile()`), et suppression du compte (`delete_account()`)
 
-A User can also act as a Visitor if they do not own places but interact with the platform by browsing places and writing reviews. This role is represented by the association between User and Review.
+#### 2. Admin (Administrateur)
+La classe `Admin` hérite de `User` et ajoute des privilèges administratifs :
+- **Relation** : Spécialisation de `User` (héritage)
+- **Méthodes** : gestion des utilisateurs, des lieux, des avis et des équipements du système
 
-Places are owned by a single User and can have multiple Reviews. Amenities can be associated with multiple Places, resulting in a many-to-many relationship.
+#### 3. Place (Lieu)
+La classe `Place` représente un logement/propriété disponible à la location :
+- **Attributs** : identifiant unique, titre, description, prix, coordonnées géographiques (latitude/longitude), et horodatages
+- **Méthodes** : opérations CRUD (création, mise à jour, suppression)
 
-This design clearly separates responsibilities while keeping the model simple and extensible.
+#### 4. Review (Avis)
+La classe `Review` représente les avis laissés par les visiteurs :
+- **Attributs** : identifiant unique, note (rating), commentaire, et horodatages
+- **Méthodes** : opérations CRUD (création, mise à jour, suppression)
 
----
+#### 5. Amenity (Équipement)
+La classe `Amenity` représente les équipements/services disponibles :
+- **Attributs** : identifiant unique, nom, description, et horodatages
+- **Méthodes** : opérations CRUD (création, mise à jour, suppression)
+
+### Relations entre Classes
+
+#### Relation User-Place (Propriétaire)
+- **Cardinalité** : `1 User` → `0..*` Places
+- **Rôle** : Un utilisateur peut posséder (owns) zéro ou plusieurs lieux en tant que **propriétaire (Owner)**
+
+#### Relation User-Review (Visiteur)
+- **Cardinalité** : `1 User` → `0..*` Reviews
+- **Rôle** : Un utilisateur peut écrire (writes) zéro ou plusieurs avis en tant que **visiteur (Visitor)**
+
+#### Relation Place-Review
+- **Cardinalité** : `1 Place` → `0..*` Reviews
+- **Signification** : Un lieu peut avoir (has) zéro ou plusieurs avis
+
+#### Relation Place-Amenity
+- **Cardinalité** : `0..*` Places ↔ `0..*` Amenities
+- **Type** : Relation plusieurs-à-plusieurs (many-to-many)
+- **Signification** : Un lieu peut inclure (includes) plusieurs équipements, et un équipement peut être présent dans plusieurs lieux
+
+### Points Clés de l'Architecture
+
+1. **Dualité des rôles utilisateur** : Un même utilisateur peut agir comme propriétaire (pour les Places) et comme visiteur (pour les Reviews)
+
+2. **Héritage** : L'Admin hérite de User, ce qui signifie qu'un administrateur possède toutes les capacités d'un utilisateur standard plus des fonctionnalités de gestion
+
+3. **Identifiants UUID** : Toutes les entités utilisent des UUID pour garantir l'unicité et la scalabilité
+
+4. **Horodatage systématique** : Chaque entité possède `created_at` et `updated_at` pour la traçabilité
+
+5. **Encapsulation** : Les attributs sont privés (-) et les méthodes publiques (+), respectant les principes de l'orienté objet
