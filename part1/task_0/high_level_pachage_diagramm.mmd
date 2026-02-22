@@ -1,0 +1,39 @@
+# high_level_package_diagramm
+
+````mermaid
+flowchart TB
+
+subgraph Presentation["Presentation Layer"]
+    API["REST API"]
+    Services["Application Services"]
+end
+
+Facade["Facade\n(Application Interface)"]
+
+subgraph Business["Business Logic Layer"]
+    User["User"]
+    Place["Place"]
+    Review["Review"]
+    Amenity["Amenity"]
+end
+
+subgraph Persistence["Persistence Layer"]
+    Repository["Repositories"]
+    Database["Database"]
+end
+
+API --> Services
+Services --> Facade
+
+Facade --> User
+Facade --> Place
+Facade --> Review
+Facade --> Amenity
+
+User --> Repository
+Place --> Repository
+Review --> Repository
+Amenity --> Repository
+
+Repository --> Database
+````
