@@ -181,3 +181,18 @@ sequenceDiagram
     end
 ```
 ---
+## Conclusion
+
+These sequence diagrams provide a clear and structured view of how the HBnB application handles key API calls.
+
+They demonstrate:
+
+* The separation of concerns between the Presentation Layer (API), Business Logic Layer (Facade + Models), and Persistence Layer (Repository).
+
+* How validation and business rules are enforced at the appropriate layer.
+
+* The handling of success and error scenarios with explicit HTTP status codes.
+
+* The step-by-step flow of information for each API call, showing how data moves through the system from request to persistence.
+
+By visualizing these interactions, the diagrams help ensure that the system architecture is clear, maintainable, and consistent with HBnB’s business rules and RESTful API design principles.
