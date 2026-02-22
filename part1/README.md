@@ -1,10 +1,16 @@
 # HBnB Evolution – Part 1: Technical Documentation
 
+<p align="center">
+  <img src="assets/HBNB_Part_1_UML.jpg" alt="HBNB Part 1 UML Banner" width="100%">
+</p>
+
+---
+
 ## Project Overview
 
 HBnB Evolution is a simplified AirBnB-like application designed to demonstrate best practices in software architecture and object-oriented design.
 
-The purpose of Part 1 of this project is to create comprehensive technical documentation that defines the architecture, core business logic, and interactions within the system. This documentation serves as a blueprint for the implementation phases that follow.
+The purpose of **Part 1** of this project is to create comprehensive technical documentation that defines the architecture, core business logic, and interactions within the system. This documentation serves as a blueprint for the implementation phases that follow.
 
 ---
 
@@ -32,6 +38,7 @@ The HBnB Evolution application follows a **three-layered architecture**, ensurin
 - Contains the core business rules
 - Defines the main domain models:
   - User
+  - Admin (inherits User)
   - Place
   - Review
   - Amenity
@@ -44,9 +51,12 @@ The HBnB Evolution application follows a **three-layered architecture**, ensurin
 
 ## Facade Pattern
 
-To simplify communication between layers, the application uses the **Facade design pattern**.
+To simplify communication between layers, the application uses the **Facade design pattern**:
 
-The Facade provides a unified interface between the Presentation Layer and the Business Logic Layer, hiding internal complexity and reducing coupling between components.
+- Provides a unified interface between Presentation and Business Logic layers
+- Hides internal complexity
+- Reduces coupling between components
+- Centralizes business operations
 
 ---
 
@@ -72,15 +82,30 @@ This part of the project includes the following UML diagrams:
 ---
 
 ## Project Structure
+````
 part1/
 ├── README.md
-├── high_level_package_diagram.md
-├── class_diagram.md
-├── sequence_diagrams/
-│ ├── user_registration.md
-│ ├── place_creation.md
-│ ├── review_submission.md
-│ └── list_places.md
+├── task_0/
+│ ├── high_level_package_diagram.mmd
+│ ├── high_level_package_diagram.png
+│ └── High-Level_Package_Diagram.md
+├── task_1/
+│ ├── class_diagram_for_BLL.mmd
+│ ├── Class_diagram_for_Business_logic_Layer.png
+│ └── Detailed-class_diagram_for_business_logic_layer.md
+├── task_2/
+│ ├── Sequence_diagrams_for_API_Calls.mmd
+│ ├── Sequence-Diagrams_for_API_Calls.md
+│ ├── User_Registration_API_CALL_diagram.png
+│ ├── Place_Creation_API_CALL_diagram.png
+│ ├── Review_Submission_API_CALL_diagram.png
+│ └── Fetch_Places_API_CALL_diagram.png
+├── task_3/
+│ ├── Technical_Documentation_part1.md
+│ └── HBnB_Technical_Documentation.pdf
+└── assets/
+└── hbnb_banner.png
+````
 
 ---
 
@@ -90,12 +115,13 @@ part1/
 - Mermaid.js for diagrams
 - draw.io (optional)
 - Object-Oriented Programming principles
+- Markdown and VS Code for documentation
 
 ---
 
 ## Expected Outcome
 
-By the end of this part, the project provides a clear and structured technical documentation that:
+By the end of this part, the project provides clear and structured technical documentation that:
 
 - Describes the system architecture
 - Defines the business logic
@@ -104,10 +130,11 @@ By the end of this part, the project provides a clear and structured technical d
 
 ---
 
-## Author
-REBATI SARA
-PLANCHON VALENTIN
-ROSSI DAMIEN
+## Authors
 
-HBnB Evolution Project – Part 1
-Holberton School - Thonon
+- **Sara Rebati**
+- **Valentin Planchon**
+- **Damien Rossi**
+
+**HBnB Evolution Project – Part 1**
+Holberton School
