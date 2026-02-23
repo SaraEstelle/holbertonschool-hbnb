@@ -5,9 +5,13 @@
 The objective of this document is to present a high-level overview of the architecture of the HBnB Evolution application.
 It illustrates how the application is organized into three main layers and how these layers communicate with each other using the Facade design pattern.
 
+<<<<<<< HEAD
+---
+=======
 This document also explains the structural decisions behind the architecture and clarifies the communication flow between components.
 
 
+>>>>>>> d4236ee3873b598a28b02929212898764f239ffe
 
 ## Application Architecture Overview
 
@@ -19,6 +23,9 @@ The HBnB Evolution application follows a layered architecture composed of three 
 
 Each layer has a specific responsibility and communicates only with the appropriate adjacent layer.
 
+<<<<<<< HEAD
+---
+=======
 
 ## What is a Layered Architecture?
 
@@ -36,6 +43,7 @@ This structure improves:
 
 * Testability
 
+>>>>>>> d4236ee3873b598a28b02929212898764f239ffe
 
 ## Presentation Layer
 
@@ -45,6 +53,9 @@ It contains the APIs and services exposed to clients.
 This layer does not contain any business logic.
 All requests are delegated to the Business Logic Layer through the Facade.
 
+<<<<<<< HEAD
+---
+=======
 - Responsibilities:
 
 * Receiving HTTP requests
@@ -73,6 +84,7 @@ The REST API defines endpoints such as:
 
 Application Services prepare the request and forward it to the Facade.
 
+>>>>>>> d4236ee3873b598a28b02929212898764f239ffe
 
 ## Business Logic Layer
 
@@ -81,6 +93,9 @@ It contains the business rules and the main domain models such as User, Place, R
 
 This layer is responsible for validating data and applying business logic before interacting with the Persistence Layer.
 
+<<<<<<< HEAD
+---
+=======
 - Responsibilities :
 
 * Enforcing business rules
@@ -109,6 +124,7 @@ This layer is responsible for validating data and applying business logic before
 
 * Required attributes must be validated
 
+>>>>>>> d4236ee3873b598a28b02929212898764f239ffe
 
 ## Persistence Layer
 
@@ -117,6 +133,9 @@ It manages interactions with the database and provides mechanisms to create, rea
 
 This layer is isolated from the Presentation Layer.
 
+<<<<<<< HEAD
+---
+=======
 - Responsibilities :
 
 * Saving entities
@@ -137,11 +156,17 @@ Repositories act as intermediaries between the Business Logic Layer and the data
 
 This abstraction ensures that business logic is not directly coupled to database implementation.
 
+>>>>>>> d4236ee3873b598a28b02929212898764f239ffe
 
 ## Facade Pattern
 
 The communication between the Presentation Layer and the Business Logic Layer is handled through the Facade design pattern.
 
+<<<<<<< HEAD
+The Facade provides a unified interface that simplifies interactions and hides the internal complexity of the business logic.
+This approach reduces coupling between layers and improves maintainability and scalability.
+
+=======
 - What is the Facade Pattern?
 
 The Facade provides a unified interface that simplifies interactions and hides the internal complexity of the business logic.
@@ -160,6 +185,7 @@ This approach reduces coupling between layers and improves maintainability and s
 * Provides a single entry point to business logic
 
 The Presentation Layer communicates only with the Facade, never directly with domain models.
+>>>>>>> d4236ee3873b598a28b02929212898764f239ffe
 ---
 
 ## High-Level Package Diagram
@@ -168,7 +194,59 @@ The following diagram illustrates the overall architecture of the HBnB Evolution
 
 ---
 
+<<<<<<< HEAD
+## High-Level Package Diagram (Version 1)
+
+```mermaid
+flowchart TB
+
+%% ===== PRESENTATION LAYER =====
+subgraph Presentation_Layer["Presentation Layer (API & Services)"]
+    API["REST API\n(Endpoints)"]
+    Services["Application Services"]
+end
+
+%% ===== FACADE =====
+Facade["Facade\n(Application Interface)"]
+
+%% ===== BUSINESS LOGIC LAYER =====
+subgraph Business_Logic_Layer["Business Logic Layer (Models & Rules)"]
+    UserModel["User Model"]
+    PlaceModel["Place Model"]
+    ReviewModel["Review Model"]
+    AmenityModel["Amenity Model"]
+
+    BusinessRules["Business Rules\n(Validation, Permissions)"]
+end
+
+%% ===== PERSISTENCE LAYER =====
+subgraph Persistence_Layer["Persistence Layer"]
+    Repositories["Repositories / DAO"]
+    Database["Database"]
+end
+
+%% ===== RELATIONSHIPS =====
+API --> Services
+Services --> Facade
+
+Facade --> UserModel
+Facade --> PlaceModel
+Facade --> ReviewModel
+Facade --> AmenityModel
+Facade --> BusinessRules
+
+UserModel --> Repositories
+PlaceModel --> Repositories
+ReviewModel --> Repositories
+AmenityModel --> Repositories
+
+Repositories --> Database
+```
+---
+## High-Level Package Diagram (Version 2)
+=======
 ## High-Level Package Diagram
+>>>>>>> d4236ee3873b598a28b02929212898764f239ffe
 
 ```mermaid
 flowchart TB
@@ -207,6 +285,10 @@ Amenity --> Repository
 
 Repository --> Database
 ```
+<<<<<<< HEAD
+
+---
+=======
 ---
 ## Diagram Explanation
 
@@ -341,3 +423,4 @@ The flow always goes downward for execution and upward for the response.
 * Easier unit testing
 
 * Cleaner code organization
+>>>>>>> d4236ee3873b598a28b02929212898764f239ffe
