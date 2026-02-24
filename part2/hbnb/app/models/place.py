@@ -1,45 +1,93 @@
+# app/models/place.py
+
 from app.models.base_model import BaseModel
 
 
 class Place(BaseModel):
-    def __init__(self, title, description, price, latitude, longitude, owner_id):
+    """
+    Represents a place listed in the HBnB system.
+
+    Attributes:
+        title (str): Title of the place.
+        description (str): Description of the place.
+        price (float): Price per night.
+        latitude (float): Geographic latitude.
+        longitude (float): Geographic longitude.
+        owner (User): Owner of the place.
+        reviews (list): List of Review instances.
+        amenities (list): List of Amenity instances.
+    """
+
+    def __init__(self, title, description, price,
+                 latitude, longitude, owner):
+        """
+        Initialize a Place instance.
+
+        Args:
+            title (str): Title of the place.
+            description (str): Description text.
+            price (float): Price per night (must be positive).
+            latitude (float): Latitude (-90 to 90).
+            longitude (float): Longitude (-180 to 180).
+            owner (User): Owner of the place.
+
+        Raises:
+            ValueError: If validation fails.
+        """
         super().__init__()
-        if not title or not isinstance(title, str) or len(title) > 100:
-            raise ValueError("title must be a non-empty string (max 100 chars)")
+
+        self._validate_title(title)
+        self._validate_price(price)
+        self._validate_coordinates(latitude, longitude)
+
+        if owner is None:
+            raise ValueError("owner is required")
+
         self.title = title
-        self.description = description or ""
-        self.price = price
-        self.latitude = latitude
-        self.longitude = longitude
-        self.owner_id = owner_id
+        self.description = description
+        self.price = float(price)
+        self.latitude = float(latitude)
+        self.longitude = float(longitude)
+        self.owner = owner
+
+        self.reviews = []
         self.amenities = []
 
-    @property
-    def price(self):
-        return self._price
+        owner.add_place(self)
 
-    @price.setter
-    def price(self, value):
-        if not isinstance(value, (int, float)) or value < 0:
-            raise ValueError("price must be a non-negative number")
-        self._price = float(value)
+    def _validate_title(self, title):
+        """Validate title presence and length."""
+        if not title or len(title) > 100:
+            raise ValueError("title is required and must be <= 100 characters")
 
-    @property
-    def latitude(self):
-        return self._latitude
+    def _validate_price(self, price):
+        """Validate price is positive."""
+        if price is None or float(price) <= 0:
+            raise ValueError("price must be a positive number")
 
-    @latitude.setter
-    def latitude(self, value):
-        if not isinstance(value, (int, float)) or not (-90 <= value <= 90):
+    def _validate_coordinates(self, latitude, longitude):
+        """Validate latitude and longitude ranges."""
+        if not (-90 <= float(latitude) <= 90):
             raise ValueError("latitude must be between -90 and 90")
-        self._latitude = float(value)
-
-    @property
-    def longitude(self):
-        return self._longitude
-
-    @longitude.setter
-    def longitude(self, value):
-        if not isinstance(value, (int, float)) or not (-180 <= value <= 180):
+        if not (-180 <= float(longitude) <= 180):
             raise ValueError("longitude must be between -180 and 180")
-        self._longitude = float(value)
+
+    def add_review(self, review):
+        """
+        Add a review to this place.
+
+        Args:
+            review (Review): Review instance.
+        """
+        self.reviews.append(review)
+        self.save()
+
+    def add_amenity(self, amenity):
+        """
+        Add an amenity to this place.
+
+        Args:
+            amenity (Amenity): Amenity instance.
+        """
+        self.amenities.append(amenity)
+        self.save()
