@@ -1,0 +1,128 @@
+from flask_restx import Namespace, Resource, fields
+from app.services import facade
+
+api = Namespace('reviews', description='Review operations')
+
+# Review model aligned with UML (comment instead of text)
+review_model = api.model('Review', {
+    'comment': fields.String(required=True, description='Written feedback'),
+    'rating': fields.Integer(required=True, description='Rating of the place (1-5)'),
+    'user_id': fields.String(required=True, description='ID of the user'),
+    'place_id': fields.String(required=True, description='ID of the place')
+})
+
+
+@api.route('/')
+class ReviewList(Resource):
+
+    @api.expect(review_model, validate=True)
+    @api.response(201, 'Review successfully created')
+    @api.response(400, 'Invalid input data')
+    @api.response(422, 'Business rule violation')
+    @api.response(409, 'Conflict (duplicate review)')
+    def post(self):
+        """Create a new review"""
+
+        review_data = api.payload
+
+        # Basic rating boundary validation (API-level structural check)
+        if review_data['rating'] < 1 or review_data['rating'] > 5:
+            return {'error': 'Rating must be between 1 and 5'}, 400
+
+        try:
+            new_review = facade.create_review(review_data)
+
+            return {
+                'id': new_review.id,
+                'comment': new_review.comment,
+                'rating': new_review.rating,
+                'user_id': review_data['user_id'],
+                'place_id': review_data['place_id']
+            }, 201
+
+        except ValueError as e:
+            # Business rule violations (e.g. user does not exist, place does not exist)
+            return {'error': str(e)}, 422
+
+        except Exception as e:
+            # Conflict example (duplicate review etc.)
+            return {'error': str(e)}, 409
+
+
+    @api.response(200, 'List of reviews retrieved successfully')
+    def get(self):
+        """Retrieve a list of all reviews"""
+
+        reviews = facade.get_reviews()
+
+        return [{
+            'id': review.id,
+            'comment': review.comment,
+            'rating': review.rating
+        } for review in reviews], 200
+
+
+@api.route('/<review_id>')
+class ReviewResource(Resource):
+
+    @api.response(200, 'Review details retrieved successfully')
+    @api.response(404, 'Review not found')
+    def get(self, review_id):
+        """Get review details by ID"""
+
+        review = facade.get_review(review_id)
+
+        if not review:
+            return {'error': 'Review not found'}, 404
+
+        return {
+            'id': review.id,
+            'comment': review.comment,
+            'rating': review.rating
+        }, 200
+
+
+    @api.expect(review_model, validate=True)
+    @api.response(200, 'Review updated successfully')
+    @api.response(404, 'Review not found')
+    @api.response(400, 'Invalid input data')
+    @api.response(422, 'Business rule violation')
+    def put(self, review_id):
+        """Update a review"""
+
+        review = facade.get_review(review_id)
+
+        if not review:
+            return {'error': 'Review not found'}, 404
+
+        update_data = api.payload
+
+        if update_data['rating'] < 1 or update_data['rating'] > 5:
+            return {'error': 'Rating must be between 1 and 5'}, 400
+
+        try:
+            updated_review = facade.update_review(review_id, update_data)
+
+            return {
+                'id': updated_review.id,
+                'comment': updated_review.comment,
+                'rating': updated_review.rating
+            }, 200
+
+        except ValueError as e:
+            return {'error': str(e)}, 422
+
+
+    @api.response(200, 'Review deleted successfully')
+    @api.response(404, 'Review not found')
+    def delete(self, review_id):
+        """Delete a review"""
+
+        review = facade.get_review(review_id)
+
+        if not review:
+            return {'error': 'Review not found'}, 404
+
+        facade.delete_review(review_id)
+
+        return {'message': 'Review deleted successfully'}, 200
