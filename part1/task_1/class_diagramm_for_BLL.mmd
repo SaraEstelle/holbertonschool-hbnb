@@ -1,0 +1,72 @@
+# Class diagram for Business logic Layer
+````mermaid
+classDiagram
+
+class User {
+    -UUID id
+    -string first_name
+    -string last_name
+    -string email
+    -string password_hash
+    -datetime created_at
+    -datetime updated_at
+
+    +register(first_name: string, last_name: string, email: string, password: string) void
+    +update_profile(first_name: string, last_name: string, email: string) void
+    +change_password(new_password: string) void
+    +delete_account() void
+}
+
+class Admin {
+    +manage_users() void
+    +manage_places() void
+    +manage_reviews() void
+    +manage_amenities() void
+}
+
+User <|-- Admin
+
+class Place {
+    -UUID id
+    -string title
+    -string description
+    -float price
+    -float latitude
+    -float longitude
+    -datetime created_at
+    -datetime updated_at
+
+    +create(title: string, description: string, price: float, latitude: float, longitude: float) void
+    +update(title: string, description: string, price: float) void
+    +delete() void
+}
+
+class Review {
+    -UUID id
+    -int rating
+    -string comment
+    -datetime created_at
+    -datetime updated_at
+
+    +create(rating: int, comment: string) void
+    +update(rating: int, comment: string) void
+    +delete() void
+}
+
+class Amenity {
+    -UUID id
+    -string name
+    -string description
+    -datetime created_at
+    -datetime updated_at
+
+    +create(name: string, description: string) void
+    +update(name: string, description: string) void
+    +delete() void
+}
+
+User "1" --> "0..*" Place : owns
+User "1" --> "0..*" Review : writes
+Place "1" --> "0..*" Review : has
+Place "0..*" -- "0..*" Amenity : includes
+````
