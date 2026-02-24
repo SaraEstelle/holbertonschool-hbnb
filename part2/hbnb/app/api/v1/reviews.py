@@ -3,7 +3,6 @@ from app.services import facade
 
 api = Namespace('reviews', description='Review operations')
 
-# Review model aligned with UML (comment instead of text)
 review_model = api.model('Review', {
     'comment': fields.String(required=True, description='Written feedback'),
     'rating': fields.Integer(required=True, description='Rating of the place (1-5)'),
@@ -25,7 +24,6 @@ class ReviewList(Resource):
 
         review_data = api.payload
 
-        # Basic rating boundary validation (API-level structural check)
         if review_data['rating'] < 1 or review_data['rating'] > 5:
             return {'error': 'Rating must be between 1 and 5'}, 400
 
@@ -41,11 +39,9 @@ class ReviewList(Resource):
             }, 201
 
         except ValueError as e:
-            # Business rule violations (e.g. user does not exist, place does not exist)
             return {'error': str(e)}, 422
 
         except Exception as e:
-            # Conflict example (duplicate review etc.)
             return {'error': str(e)}, 409
 
 
