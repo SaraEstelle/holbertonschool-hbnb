@@ -1,7 +1,19 @@
+"""
+Place API module.
+
+This module defines the RESTful endpoints for managing Place objects
+in the HBnB application. It provides CRUD operations (excluding DELETE)
+and integrates with the business logic layer via the HBnBFacade.
+"""
+
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 
 api = Namespace('places', description='Place operations')
+
+# -----------------------------
+# Related entity models
+# -----------------------------
 
 amenity_model = api.model('PlaceAmenity', {
     'id': fields.String(description='Amenity ID'),
@@ -15,6 +27,10 @@ user_model = api.model('PlaceUser', {
     'email': fields.String(description='Email of the owner')
 })
 
+# -----------------------------
+# Place input model
+# -----------------------------
+
 place_model = api.model('Place', {
     'title': fields.String(required=True, description='Title of the place'),
     'description': fields.String(description='Description of the place'),
@@ -25,18 +41,23 @@ place_model = api.model('Place', {
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
 })
 
+# -----------------------------
+# Place list endpoints
+# -----------------------------
+
 @api.route('/')
 class PlaceList(Resource):
     @api.expect(place_model, validate=True)
     @api.response(201, 'Place successfully created')
     @api.response(400, 'Invalid input data')
     def post(self):
-        """Register a new place"""
+        """Register a new place."""
         place_data = api.payload
         try:
             place = facade.create_place(place_data)
         except ValueError as e:
             return {'error': str(e)}, 400
+
         return {
             'id': place.id,
             'title': place.title,
@@ -44,32 +65,43 @@ class PlaceList(Resource):
             'price': place.price,
             'latitude': place.latitude,
             'longitude': place.longitude,
-            'owner_id': place.owner_id
+            'owner_id': place.owner.id
         }, 201
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
-        """Retrieve a list of all places"""
+        """Retrieve a list of all places."""
         places = facade.get_all_places()
         return [
-            {'id': p.id, 'title': p.title, 'latitude': p.latitude, 'longitude': p.longitude}
+            {
+                'id': p.id,
+                'title': p.title,
+                'latitude': p.latitude,
+                'longitude': p.longitude
+            }
             for p in places
         ], 200
+
+# -----------------------------
+# Single place endpoints
+# -----------------------------
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
     @api.response(200, 'Place details retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
-        """Get place details by ID"""
+        """Get place details by ID, including owner and amenities."""
         place = facade.get_place(place_id)
         if not place:
             return {'error': 'Place not found'}, 404
-        owner = facade.get_user(place.owner_id)
+
+        owner = facade.get_user(place.owner.id)
         return {
             'id': place.id,
             'title': place.title,
             'description': place.description,
+            'price': place.price,
             'latitude': place.latitude,
             'longitude': place.longitude,
             'owner': {
@@ -81,17 +113,18 @@ class PlaceResource(Resource):
             'amenities': [{'id': a.id, 'name': a.name} for a in place.amenities]
         }, 200
 
-    @api.expect(place_model)
+    @api.expect(place_model, validate=True)
     @api.response(200, 'Place updated successfully')
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
     def put(self, place_id):
-        """Update a place's information"""
+        """Update a place's information."""
         place_data = api.payload
         try:
             place = facade.update_place(place_id, place_data)
+            if not place:
+                return {'error': 'Place not found'}, 404
         except ValueError as e:
             return {'error': str(e)}, 400
-        if not place:
-            return {'error': 'Place not found'}, 404
+
         return {'message': 'Place updated successfully'}, 200
