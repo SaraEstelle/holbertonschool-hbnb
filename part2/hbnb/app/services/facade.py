@@ -63,6 +63,27 @@ class HBnBFacade:
         """Retrieve all users."""
         return self.user_repo.get_all()
 
+    def update_user(self, user_id, user_data):
+        """Update a user's profile and/or password."""
+        user = self.user_repo.get(user_id)
+        if not user:
+            return None
+
+        if "email" in user_data and user_data["email"] != user.email:
+            if self.get_user_by_email(user_data["email"]):
+                raise ValueError("Email already registered")
+
+        user.update_profile(
+            first_name=user_data.get("first_name", user.first_name),
+            last_name=user_data.get("last_name", user.last_name),
+            email=user_data.get("email", user.email),
+        )
+
+        if "password" in user_data:
+            user.change_password(user_data["password"])
+
+        return user
+
     def delete_user(self, user_id):
         """Delete a user by ID."""
         return self.user_repo.delete(user_id)
