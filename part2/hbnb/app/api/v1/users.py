@@ -14,7 +14,8 @@ user_model = api.model('User', {
 user_update_model = api.model('UserUpdate', {
     'first_name': fields.String(description='First name of the user'),
     'last_name': fields.String(description='Last name of the user'),
-    'email': fields.String(description='Email of the user')
+    'email': fields.String(description='Email of the user'),
+    'password': fields.String(description='New password')
 })
 
 @api.route('/')
@@ -26,10 +27,6 @@ class UserList(Resource):
     def post(self):
         """Register a new user"""
         user_data = api.payload
-
-        existing_user = facade.get_user_by_email(user_data['email'])
-        if existing_user:
-            return {'error': 'Email already registered'}, 400
 
         try:
             new_user = facade.create_user(user_data)
@@ -97,6 +94,8 @@ class UserResource(Resource):
                 last_name=user_data.get('last_name', user.last_name),
                 email=user_data.get('email', user.email)
             )
+            if 'password' in user_data:
+                user.change_password(user_data['password'])
         except ValueError as e:
             return {'error': str(e)}, 400
 
