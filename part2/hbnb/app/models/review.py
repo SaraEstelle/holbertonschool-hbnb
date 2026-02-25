@@ -10,42 +10,34 @@ class Review(BaseModel):
     Attributes:
         rating (int): Rating between 1 and 5.
         comment (str): Review comment text.
-        user (User): Author of the review.
-        place (Place): Place being reviewed.
+        user_id (str): ID of the user (optional for now).
+        place_id (str): ID of the place (optional for now).
     """
 
-    def __init__(self, rating, comment, user, place):
-        """
-        Initialize a Review instance.
-
-        Args:
-            rating (int): Rating value (1–5).
-            comment (str): Comment text.
-            user (User): Author of review.
-            place (Place): Reviewed place.
-
-        Raises:
-            ValueError: If validation fails.
-        """
+    def __init__(self, rating, comment, user_id=None, place_id=None):
         super().__init__()
 
         self._validate_rating(rating)
-
-        if user is None:
-            raise ValueError("user is required")
-
-        if place is None:
-            raise ValueError("place is required")
+        self._validate_comment(comment)
 
         self.rating = int(rating)
         self.comment = comment
-        self.user = user
-        self.place = place
+        self.user_id = user_id
+        self.place_id = place_id
 
-        user.add_review(self)
-        place.add_review(self)
+    # -------------------
+    # Validation Methods
+    # -------------------
 
     def _validate_rating(self, rating):
         """Validate rating is between 1 and 5."""
-        if not (1 <= int(rating) <= 5):
+        if not isinstance(rating, int):
+            raise ValueError("rating must be an integer")
+
+        if rating < 1 or rating > 5:
             raise ValueError("rating must be between 1 and 5")
+
+    def _validate_comment(self, comment):
+        """Validate comment is not empty."""
+        if not comment or comment.strip() == "":
+            raise ValueError("comment cannot be empty")

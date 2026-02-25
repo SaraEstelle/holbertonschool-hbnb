@@ -134,19 +134,11 @@ class HBnBFacade:
         Raises:
             ValueError: If user or place not found.
         """
-        user = self.user_repo.get(review_data["user_id"])
-        if not user:
-            raise ValueError("User not found")
-
-        place = self.place_repo.get(review_data["place_id"])
-        if not place:
-            raise ValueError("Place not found")
-
         review = Review(
             rating=review_data["rating"],
-            comment=review_data.get("comment", ""),
-            user=user,
-            place=place,
+            comment=review_data["comment"],
+            user_id=review_data.get("user_id"),
+            place_id=review_data.get("place_id"),
         )
 
         self.review_repo.add(review)

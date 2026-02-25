@@ -14,7 +14,7 @@ review_model = api.model('Review', {
 @api.route('/')
 class ReviewList(Resource):
 
-    @api.expect(review_model, validate=True)
+    @api.expect(review_model)
     @api.response(201, 'Review successfully created')
     @api.response(400, 'Invalid input data')
     @api.response(422, 'Business rule violation')
@@ -24,25 +24,30 @@ class ReviewList(Resource):
 
         review_data = api.payload
 
-        if review_data['rating'] < 1 or review_data['rating'] > 5:
-            return {'error': 'Rating must be between 1 and 5'}, 400
+        required_fields = ["comment", "rating", "user_id", "place_id"]
+        for field in required_fields:
+            if field not in review_data:
+                return {"error": f"{field} is required"}, 400
+
+        if not review_data["comment"] or review_data["comment"].strip() == "":
+            return {"error": "Comment cannot be empty"}, 400
+
+        if review_data["rating"] < 1 or review_data["rating"] > 5:
+            return {"error": "Rating must be between 1 and 5"}, 400
 
         try:
             new_review = facade.create_review(review_data)
 
             return {
-                'id': new_review.id,
-                'comment': new_review.comment,
-                'rating': new_review.rating,
-                'user_id': review_data['user_id'],
-                'place_id': review_data['place_id']
+                "id": new_review.id,
+                "comment": new_review.comment,
+                "rating": new_review.rating,
+                "user_id": review_data["user_id"],
+                "place_id": review_data["place_id"]
             }, 201
 
         except ValueError as e:
-            return {'error': str(e)}, 422
-
-        except Exception as e:
-            return {'error': str(e)}, 409
+            return {"error": str(e)}, 400
 
 
     @api.response(200, 'List of reviews retrieved successfully')
@@ -78,7 +83,7 @@ class ReviewResource(Resource):
         }, 200
 
 
-    @api.expect(review_model, validate=True)
+    @api.expect(review_model)
     @api.response(200, 'Review updated successfully')
     @api.response(404, 'Review not found')
     @api.response(400, 'Invalid input data')
