@@ -1,3 +1,5 @@
+# app/services/facade.py
+
 from app.persistence.repository import InMemoryRepository
 from app.models.user import User
 from app.models.place import Place
@@ -12,7 +14,7 @@ class HBnBFacade:
     """
 
     def __init__(self):
-        """Initialize repositories."""
+        """Initialize repositories for users, places, reviews, and amenities."""
         self.user_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
@@ -71,21 +73,29 @@ class HBnBFacade:
 
     def create_place(self, place_data):
         """
-        Create a new place.
+        Create a new place, linking owner and amenities.
 
         Args:
-            place_data (dict): Dictionary containing place fields.
+            place_data (dict): Dictionary containing place fields:
+                - title (str)
+                - description (str)
+                - price (float)
+                - latitude (float)
+                - longitude (float)
+                - owner_id (str)
+                - amenities (list of str, optional)
 
         Returns:
-            Place: The created place instance.
+            Place: The created Place instance.
 
         Raises:
-            ValueError: If owner or amenities not found.
+            ValueError: If owner not found, amenities not found, or validation fails.
         """
         owner = self.user_repo.get(place_data["owner_id"])
         if not owner:
             raise ValueError("Owner not found")
 
+        # Create the Place instance
         place = Place(
             title=place_data["title"],
             description=place_data.get("description", ""),
@@ -95,7 +105,7 @@ class HBnBFacade:
             owner=owner,
         )
 
-        # Attach amenities (many-to-many)
+        # Attach amenities if provided
         for amenity_id in place_data.get("amenities", []):
             amenity = self.amenity_repo.get(amenity_id)
             if not amenity:
@@ -106,16 +116,71 @@ class HBnBFacade:
         return place
 
     def get_place(self, place_id):
-        """Retrieve a place by ID."""
+        """
+        Retrieve a place by ID.
+
+        Args:
+            place_id (str): ID of the place.
+
+        Returns:
+            Place or None: The Place instance or None if not found.
+        """
         return self.place_repo.get(place_id)
 
     def get_all_places(self):
-        """Retrieve all places."""
+        """
+        Retrieve all places.
+
+        Returns:
+            list[Place]: List of all Place instances.
+        """
         return self.place_repo.get_all()
 
-    def delete_place(self, place_id):
-        """Delete a place."""
-        return self.place_repo.delete(place_id)
+    def update_place(self, place_id, place_data):
+        """
+        Update an existing place's information.
+
+        Args:
+            place_id (str): ID of the place to update.
+            place_data (dict): Dictionary containing fields to update.
+
+        Returns:
+            Place or None: The updated Place instance, or None if not found.
+
+        Raises:
+            ValueError: If validation fails or amenities not found.
+        """
+        place = self.place_repo.get(place_id)
+        if not place:
+            return None
+
+        # Update title, description, price, latitude, longitude
+        if "title" in place_data:
+            place._validate_title(place_data["title"])
+            place.title = place_data["title"]
+        if "description" in place_data:
+            place.description = place_data["description"]
+        if "price" in place_data:
+            place._validate_price(place_data["price"])
+            place.price = float(place_data["price"])
+        if "latitude" in place_data or "longitude" in place_data:
+            latitude = place_data.get("latitude", place.latitude)
+            longitude = place_data.get("longitude", place.longitude)
+            place._validate_coordinates(latitude, longitude)
+            place.latitude = float(latitude)
+            place.longitude = float(longitude)
+
+        # Update amenities if provided
+        if "amenities" in place_data:
+            place.amenities = []
+            for amenity_id in place_data["amenities"]:
+                amenity = self.amenity_repo.get(amenity_id)
+                if not amenity:
+                    raise ValueError(f"Amenity {amenity_id} not found")
+                place.add_amenity(amenity)
+
+        place.save()
+        return place
 
     # ==================================================
     # REVIEW METHODS
@@ -134,11 +199,19 @@ class HBnBFacade:
         Raises:
             ValueError: If user or place not found.
         """
+        user = self.user_repo.get(review_data["user_id"])
+        if not user:
+            raise ValueError("User not found")
+
+        place = self.place_repo.get(review_data["place_id"])
+        if not place:
+            raise ValueError("Place not found")
+
         review = Review(
             rating=review_data["rating"],
-            comment=review_data["comment"],
-            user_id=review_data.get("user_id"),
-            place_id=review_data.get("place_id"),
+            comment=review_data.get("comment", ""),
+            user=user,
+            place=place,
         )
 
         self.review_repo.add(review)
@@ -185,6 +258,32 @@ class HBnBFacade:
     def get_all_amenities(self):
         """Retrieve all amenities."""
         return self.amenity_repo.get_all()
+
+    def update_amenity(self, amenity_id, amenity_data):
+        """
+        Update an existing amenity.
+
+        Args:
+            amenity_id (str): ID of the amenity to update.
+            amenity_data (dict): Dictionary containing fields to update.
+
+        Returns:
+            Amenity or None: Updated Amenity instance or None if not found.
+
+        Raises:
+            ValueError: If validation fails.
+        """
+        amenity = self.amenity_repo.get(amenity_id)
+        if not amenity:
+            return None
+        if "name" in amenity_data:
+            if not amenity_data["name"]:
+                raise ValueError("Name cannot be empty")
+            amenity.name = amenity_data["name"]
+        if "description" in amenity_data:
+            amenity.description = amenity_data["description"]
+        amenity.save()
+        return amenity
 
     def delete_amenity(self, amenity_id):
         """Delete amenity."""
