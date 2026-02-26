@@ -67,6 +67,31 @@ class HBnBFacade:
         """Delete a user by ID."""
         return self.user_repo.delete(user_id)
 
+    def update_user(self, user_id, user_data):
+        """Update an existing user."""
+        user = self.user_repo.get(user_id)
+        if not user:
+            return None
+
+        if "first_name" in user_data:
+            user._validate_name(user_data["first_name"], "first_name")
+            user.first_name = user_data["first_name"]
+        if "last_name" in user_data:
+            user._validate_name(user_data["last_name"], "last_name")
+            user.last_name = user_data["last_name"]
+        if "email" in user_data:
+            existing = self.get_user_by_email(user_data["email"])
+            if existing and existing.id != user_id:
+                raise ValueError("Email already exists")
+            user._validate_email(user_data["email"])
+            user.email = user_data["email"]
+        if "password" in user_data:
+            user._validate_password(user_data["password"])
+            user.set_password(user_data["password"])
+
+        user.save()
+        return user
+
     # ==================================================
     # PLACE METHODS
     # ==================================================
@@ -156,19 +181,17 @@ class HBnBFacade:
 
         # Update title, description, price, latitude, longitude
         if "title" in place_data:
-            place._validate_title(place_data["title"])
+            if not place_data["title"] or len(place_data["title"]) > 100:
+                raise ValueError("title is required and must be <= 100 characters")
             place.title = place_data["title"]
         if "description" in place_data:
             place.description = place_data["description"]
         if "price" in place_data:
-            place._validate_price(place_data["price"])
-            place.price = float(place_data["price"])
-        if "latitude" in place_data or "longitude" in place_data:
-            latitude = place_data.get("latitude", place.latitude)
-            longitude = place_data.get("longitude", place.longitude)
-            place._validate_coordinates(latitude, longitude)
-            place.latitude = float(latitude)
-            place.longitude = float(longitude)
+            place.price = place_data["price"]  # setter validates
+        if "latitude" in place_data:
+            place.latitude = place_data["latitude"]  # setter validates
+        if "longitude" in place_data:
+            place.longitude = place_data["longitude"]  # setter validates
 
         # Update amenities if provided
         if "amenities" in place_data:
@@ -207,6 +230,9 @@ class HBnBFacade:
         if not place:
             raise ValueError("Place not found")
 
+        if user.id == place.owner.id:
+            raise ValueError("Owner cannot review their own place")
+
         review = Review(
             rating=review_data["rating"],
             comment=review_data.get("comment", ""),
@@ -221,7 +247,7 @@ class HBnBFacade:
         """Retrieve review by ID."""
         return self.review_repo.get(review_id)
 
-    def get_all_reviews(self):
+    def get_reviews(self):
         """Retrieve all reviews."""
         return self.review_repo.get_all()
 

@@ -41,6 +41,15 @@ place_model = api.model('Place', {
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
 })
 
+place_update_model = api.model('PlaceUpdate', {
+    'title': fields.String(description='Title of the place'),
+    'description': fields.String(description='Description of the place'),
+    'price': fields.Float(description='Price per night'),
+    'latitude': fields.Float(description='Latitude of the place'),
+    'longitude': fields.Float(description='Longitude of the place'),
+    'amenities': fields.List(fields.String, description="List of amenities ID's")
+})
+
 # -----------------------------
 # Place list endpoints
 # -----------------------------
@@ -113,7 +122,7 @@ class PlaceResource(Resource):
             'amenities': [{'id': a.id, 'name': a.name} for a in place.amenities]
         }, 200
 
-    @api.expect(place_model, validate=True)
+    @api.expect(place_update_model, validate=True)
     @api.response(200, 'Place updated successfully')
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
@@ -127,4 +136,13 @@ class PlaceResource(Resource):
         except ValueError as e:
             return {'error': str(e)}, 400
 
-        return {'message': 'Place updated successfully'}, 200
+        return {
+            'id': place.id,
+            'title': place.title,
+            'description': place.description,
+            'price': place.price,
+            'latitude': place.latitude,
+            'longitude': place.longitude,
+            'owner_id': place.owner.id,
+            'amenities': [{'id': a.id, 'name': a.name} for a in place.amenities]
+        }, 200
