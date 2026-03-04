@@ -67,13 +67,16 @@ class UserList(Resource):
         Returns:
             dict: Created user information (without password).
             HTTP 201 on success.
-            HTTP 400 if validation fails or email exists.
+            HTTP 400 if validation fails.
+            HTTP 422 if email already exists.
         """
         user_data = api.payload
 
         try:
             new_user = facade.create_user(user_data)
         except ValueError as e:
+            if "Email already exists" in str(e):
+                return {'error': str(e)}, 422
             return {'error': str(e)}, 400
 
         return {
@@ -160,6 +163,7 @@ class UserResource(Resource):
             HTTP 200 on success.
             HTTP 404 if user not found.
             HTTP 400 if validation fails.
+            HTTP 422 if email already exists.
         """
         try:
             user = facade.update_user(user_id, api.payload)
@@ -168,6 +172,8 @@ class UserResource(Resource):
                 return {'error': 'User not found'}, 404
 
         except ValueError as e:
+            if "Email already exists" in str(e):
+                return {'error': str(e)}, 422
             return {'error': str(e)}, 400
 
         return {

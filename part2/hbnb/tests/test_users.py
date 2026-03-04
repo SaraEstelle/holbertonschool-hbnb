@@ -3,105 +3,105 @@ from app import create_app
 
 
 class TestUserEndpoints(unittest.TestCase):
+
     def setUp(self):
         self.app = create_app()
         self.client = self.app.test_client()
         self.app.testing = True
-
-    def _create_user(self, email="john.doe@example.com"):
-        payload = {
+        self.valid_user = {
             "first_name": "John",
             "last_name": "Doe",
-            "email": email,
-            "password": "Password123"
+            "email": "john.doe@example.com",
+            "password": "secret12"
         }
-        return self.client.post("/api/v1/users/", json=payload)
 
+    # POST /api/v1/users/
     def test_create_user_success(self):
-        r = self._create_user()
-        self.assertEqual(r.status_code, 201)
-        data = r.get_json()
-        self.assertIn("id", data)
-        self.assertEqual(data["email"], "john.doe@example.com")
-        self.assertNotIn("password", data)
+        response = self.client.post('/api/v1/users/', json=self.valid_user)
+        self.assertEqual(response.status_code, 201)
+        data = response.get_json()
+        self.assertIn('id', data)
+        self.assertEqual(data['first_name'], 'John')
+        self.assertEqual(data['email'], 'john.doe@example.com')
+        self.assertNotIn('password', data)
 
     def test_create_user_duplicate_email(self):
-        self._create_user()
-        r = self._create_user()
-        self.assertEqual(r.status_code, 400)
+        self.client.post('/api/v1/users/', json=self.valid_user)
+        response = self.client.post('/api/v1/users/', json=self.valid_user)
+        self.assertEqual(response.status_code, 422)
 
     def test_create_user_invalid_email(self):
-        payload = {
-            "first_name": "John",
-            "last_name": "Doe",
-            "email": "not-an-email",
-            "password": "Password123"
-        }
-        r = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(r.status_code, 400)
-
-    def test_create_user_missing_field(self):
-        r = self.client.post("/api/v1/users/", json={"first_name": "John"})
-        self.assertEqual(r.status_code, 400)
+        payload = {**self.valid_user, "email": "not-an-email"}
+        response = self.client.post('/api/v1/users/', json=payload)
+        self.assertEqual(response.status_code, 400)
 
     def test_create_user_empty_first_name(self):
-        payload = {
-            "first_name": "",
-            "last_name": "Doe",
-            "email": "a@b.com",
-            "password": "Password123"
-        }
-        r = self.client.post("/api/v1/users/", json=payload)
-        self.assertEqual(r.status_code, 400)
+        payload = {**self.valid_user, "first_name": ""}
+        response = self.client.post('/api/v1/users/', json=payload)
+        self.assertEqual(response.status_code, 400)
 
+    def test_create_user_name_too_long(self):
+        payload = {**self.valid_user, "first_name": "A" * 51}
+        response = self.client.post('/api/v1/users/', json=payload)
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_user_missing_field(self):
+        response = self.client.post('/api/v1/users/',
+                                    json={"first_name": "Jane"})
+        self.assertEqual(response.status_code, 400)
+
+    # GET /api/v1/users/
     def test_get_all_users_empty(self):
-        r = self.client.get("/api/v1/users/")
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.get_json(), [])
+        response = self.client.get('/api/v1/users/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), [])
 
     def test_get_all_users(self):
-        self._create_user()
-        r = self.client.get("/api/v1/users/")
-        self.assertEqual(r.status_code, 200)
-        data = r.get_json()
-        self.assertIsInstance(data, list)
-        self.assertGreaterEqual(len(data), 1)
+        self.client.post('/api/v1/users/', json=self.valid_user)
+        response = self.client.get('/api/v1/users/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.get_json()), 1)
 
+    # GET /api/v1/users/<id>
     def test_get_user_by_id_success(self):
-        post = self._create_user()
-        user_id = post.get_json()["id"]
-
-        r = self.client.get(f"/api/v1/users/{user_id}")
-        self.assertEqual(r.status_code, 200)
-        data = r.get_json()
-        self.assertEqual(data["id"], user_id)
-        self.assertNotIn("password", data)
+        post_resp = self.client.post('/api/v1/users/', json=self.valid_user)
+        user_id = post_resp.get_json()['id']
+        response = self.client.get(f'/api/v1/users/{user_id}')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('password', response.get_json())
 
     def test_get_user_not_found(self):
-        r = self.client.get("/api/v1/users/fake-id-000")
-        self.assertEqual(r.status_code, 404)
+        response = self.client.get('/api/v1/users/fake-id-000')
+        self.assertEqual(response.status_code, 404)
 
-    def test_update_user_success_partial(self):
-        post = self._create_user()
-        user_id = post.get_json()["id"]
-
-        r = self.client.put(f"/api/v1/users/{user_id}", json={"first_name": "Jane"})
-        self.assertEqual(r.status_code, 200)
-        data = r.get_json()
-        self.assertEqual(data["first_name"], "Jane")
-        self.assertNotIn("password", data)
+    # PUT /api/v1/users/<id>
+    def test_update_user_success(self):
+        post_resp = self.client.post('/api/v1/users/', json=self.valid_user)
+        user_id = post_resp.get_json()['id']
+        response = self.client.put(
+            f'/api/v1/users/{user_id}',
+            json={"first_name": "Jane"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()['first_name'], 'Jane')
 
     def test_update_user_not_found(self):
-        r = self.client.put("/api/v1/users/fake-id-000", json={"first_name": "Jane"})
-        self.assertEqual(r.status_code, 404)
+        response = self.client.put('/api/v1/users/fake-id-000',
+                                   json={"first_name": "Jane"})
+        self.assertEqual(response.status_code, 404)
 
     def test_update_user_duplicate_email(self):
-        u1 = self._create_user("john.doe@example.com").get_json()["id"]
-        u2 = self._create_user("other@example.com").get_json()["id"]
+        self.client.post('/api/v1/users/', json=self.valid_user)
+        r2 = self.client.post('/api/v1/users/',
+                              json={**self.valid_user,
+                                    "email": "other@example.com"})
+        user2_id = r2.get_json()['id']
+        response = self.client.put(
+            f'/api/v1/users/{user2_id}',
+            json={"email": "john.doe@example.com"}
+        )
+        self.assertEqual(response.status_code, 422)
 
-        r = self.client.put(f"/api/v1/users/{u2}", json={"email": "john.doe@example.com"})
-        self.assertEqual(r.status_code, 400)
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
