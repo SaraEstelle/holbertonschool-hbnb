@@ -235,7 +235,7 @@ class HBnBFacade:
 
         review = Review(
             rating=review_data["rating"],
-            comment=review_data.get("comment", ""),
+            text=review_data.get("text", ""),
             user=user,
             place=place,
         )
@@ -273,7 +273,7 @@ class HBnBFacade:
 
         Args:
             review_id (str): ID of the review to update.
-            review_data (dict): Fields to update (comment, rating).
+            review_data (dict): Fields to update (text, rating).
 
         Returns:
             Review or None: Updated review, or None if not found.
@@ -285,10 +285,10 @@ class HBnBFacade:
         if not review:
             return None
 
-        if "comment" in review_data:
-            if not review_data["comment"] or review_data["comment"].strip() == "":
-                raise ValueError("Comment cannot be empty")
-            review.comment = review_data["comment"]
+        if "text" in review_data:
+            if not review_data["text"] or review_data["text"].strip() == "":
+                raise ValueError("Text cannot be empty")
+            review.text = review_data["text"]
 
         if "rating" in review_data:
             rating = review_data["rating"]
