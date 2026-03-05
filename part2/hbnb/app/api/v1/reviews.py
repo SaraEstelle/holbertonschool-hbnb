@@ -106,17 +106,10 @@ class ReviewResource(Resource):
             return {'error': 'Rating must be between 1 and 5'}, 400
 
         try:
-            updated_review = facade.update_review(review_id, update_data)
-
-            return {
-                'id': updated_review.id,
-                'text': updated_review.text,
-                'rating': updated_review.rating
-            }, 200
-
+            facade.update_review(review_id, update_data)
+            return {'message': 'Review updated successfully'}, 200
         except ValueError as e:
-            return {'error': str(e)}, 422
-
+            return {'error': str(e)}, 400
 
     @api.response(200, 'Review deleted successfully')
     @api.response(404, 'Review not found')
