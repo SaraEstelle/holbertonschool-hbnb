@@ -36,6 +36,17 @@ def create_app(config_class="config.DevelopmentConfig"):
     from app.services import facade
     facade.reset()
 
+    try:
+        facade.create_user({
+            'first_name': 'Admin',
+            'last_name': 'HBnB',
+            'email': 'admin@hbnb.io',
+            'password': 'admin1234',
+            'is_admin': True
+        })
+    except Exception:
+        pass
+
     # Register API Blueprint
     app.register_blueprint(api_bp)
 
