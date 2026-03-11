@@ -2,11 +2,17 @@
 Amenity API endpoints module.
 
 This module defines the RESTful endpoints for managing amenities
-in the HBnB application. It handles creation, retrieval, and update
-operations for amenities through the Facade layer.
+in the HBnB application.
+
+Access rules:
+- POST /     : Admin only
+- GET /     : Public
+- GET /<id> : Public
+- PUT/<amenity_id> : Admin only
 """
 
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import jwt_required, get_jwt
 from app.services import facade
 
 api = Namespace('amenities', description='Amenity operations')
@@ -26,23 +32,18 @@ class AmenityList(Resource):
     retrieve all amenities.
     """
 
+    @jwt_required()
     @api.expect(amenity_model, validate=True)
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
+    @api.response(403, 'Admin privileges required')
     def post(self):
         """
-        Create a new amenity.
+        Create a new amenity. Admin only."""
+        claims = get_jwt()
+        if not claims.get('is_admin'):
+            return {'error': 'Admin privileges required'}, 403
 
-        Expects a JSON payload containing:
-            - name (str): Name of the amenity
-
-        Returns:
-            dict: The created amenity's ID and name
-            int: HTTP status code 201 on success
-
-        Raises:
-            400 Bad Request: If input data is invalid
-        """
         amenity_data = api.payload
         try:
             new_amenity = facade.create_amenity(amenity_data)
@@ -107,8 +108,10 @@ class AmenityResource(Resource):
             'name': amenity.name
         }, 200
 
+    @jwt_required()
     @api.expect(amenity_model, validate=True)
     @api.response(200, 'Amenity updated successfully')
+    @api.response(403, 'Admin Privileges required')
     @api.response(404, 'Amenity not found')
     @api.response(400, 'Invalid input data')
     def put(self, amenity_id):
