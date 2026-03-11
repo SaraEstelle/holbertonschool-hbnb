@@ -1,4 +1,12 @@
+"""
+User API module.
+
+This module defines the RESTful endpoints for managing User objects
+in the Hbnb application. The PUT endpoint is protected by JWT authentication.
+"""
+
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
 
 api = Namespace('users', description='User operations')
@@ -55,10 +63,11 @@ class UserList(Resource):
 
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
-    @api.response(400, 'Invalid input data or email already registered')
+    @api.response(400, 'Invalid input data')
+    @api.response(422, 'Email already registered')
     def post(self):
         """
-        Register a new user.
+        Register a new user.Public endpoint.
 
         Expects:
             JSON payload containing first_name, last_name,
@@ -144,36 +153,33 @@ class UserResource(Resource):
             'email': user.email
         }, 200
 
+    @jwt_required()
     @api.expect(user_update_model, validate=True)
     @api.response(200, 'User successfully updated')
+    @api.response(400, 'Cannot modifiy email or password')
+    @api.response(403, 'Unauthorized action')
     @api.response(404, 'User not found')
-    @api.response(400, 'Invalid input data')
     def put(self, user_id):
         """
-        Update an existing user.
+        Update user details. Only the user can modifiy their own data.
+        Email and password cannot be changed through this endpoint."""
+        current_user = get_jwt_identity()
 
-        Allows updating first_name, last_name, email,
-        and password.
+        # only the authenticated user can modify their own data
+        if user_id != current_user:
+            return {'error': 'Unauthorized action'}, 403
 
-        Args:
-            user_id (str): Unique identifier of the user.
+        data = api.payload
 
-        Returns:
-            dict: Updated user information (without password).
-            HTTP 200 on success.
-            HTTP 404 if user not found.
-            HTTP 400 if validation fails.
-            HTTP 422 if email already exists.
-        """
+        #Block email and password modification
+        if 'email' in data or 'password' in data:
+            return {'error': 'You cannot modify email or password'}, 400
+
         try:
-            user = facade.update_user(user_id, api.payload)
-
+            user = facade.update_user(user_id, data)
             if not user:
                 return {'error': 'User not found'}, 404
-
         except ValueError as e:
-            if "Email already exists" in str(e):
-                return {'error': str(e)}, 422
             return {'error': str(e)}, 400
 
         return {
