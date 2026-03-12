@@ -1,7 +1,8 @@
 # app/models/user.py
 import re
+from app import db, bcrypt
 from app.models.base_model import BaseModel
-from app import bcrypt
+from sqlalchemy.orm import validates
 
 class User(BaseModel):
     """
@@ -17,86 +18,44 @@ class User(BaseModel):
         reviews (list): List of Review instances written by the user.
     """
 
-    def __init__(self, first_name, last_name, email, password, is_admin=False):
-        """
-        Initialize a User instance with required attributes.
+    __tablename__ = 'users'
 
-        Args:
-            first_name (str): User's first name.
-            last_name (str): User's last name.
-            email (str): User's email address.
-            password (str): User's plain-text password (will be hashed).
-            is_admin (bool, optional): Admin flag. Defaults to False.
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name  = db.Column(db.String(50), nullable=False)
+    email      = db.Column(db.String(120), nullable=False, unique=True)
+    password   = db.Column(db.String(128), nullable=False)
+    is_admin   = db.Column(db.Boolean,     default=False)
 
-        Raises:
-            ValueError: If any validation fails.
-        """
-        super().__init__()
-        self._validate_name(first_name, "first_name")
-        self._validate_name(last_name, "last_name")
-        self._validate_email(email)
-        self._validate_password(password)
-        if not isinstance(is_admin, bool):
-            raise ValueError("is_admin must be a boolean")
 
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.hash_password(password)
-        self.is_admin = is_admin
+    # ------------------------
+    # SQLAlchemy Validators
+    # ------------------------
 
-        self.places = []
-        self.reviews = []
-
-    # -------------------
-    # Validation Methods
-    # -------------------
-    def _validate_name(self, value, field_name):
-        """
-        Validate that a name attribute is present and <= 50 characters.
-
-        Args:
-            value (str): The name to validate.
-            field_name (str): The name of the attribute (first_name/last_name).
-
-        Raises:
-            ValueError: If validation fails.
-        """
+    @validates('first_name')
+    def validate_first_name(self, key, value):
         if not value or len(value) > 50:
-            raise ValueError(f"{field_name} is required and must be <= 50 characters")
+            raise ValueError("First_name is required and must be <= 50 characters")
+        return value
 
-    def _validate_email(self, email):
-        """
-        Validate the email format.
+    @validates('last_name')
+    def validate_last_name(self, key, value):
+        if not value or len(value) > 50:
+            raise ValueError("last_name is required and must be <= 50 characters")
+        return value
 
-        Args:
-            email (str): Email to validate.
-
-        Raises:
-            ValueError: If email is missing or invalid.
-        """
-        if not email:
+    @validates('email')
+    def validate_email(self, key, value):
+        if not value:
             raise ValueError("email is required")
-        pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
-        if not re.match(pattern, email):
+        pattern =  r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        if not re.match(pattern, value):
             raise ValueError("Invalid email format")
-
-    def _validate_password(self, password):
-        """
-        Validate the password length.
-
-        Args:
-            password (str): Password to validate.
-
-        Raises:
-            ValueError: If password is too short.
-        """
-        if not password or len(password) < 6:
-            raise ValueError("Password must be at least 6 characters long")
+        return value
 
     # -------------------
     # Password Handling
     # -------------------
+
     def hash_password(self, password):
         """
         Hashes the password using bcrypt before storing it.
@@ -104,6 +63,8 @@ class User(BaseModel):
         Args:
             password (str): Plain-text password.
         """
+        if not password or len(password) < 6:
+            raise ValueError("Password must be at least 6 characters long")
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def verify_password(self, password):
