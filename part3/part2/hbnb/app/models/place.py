@@ -6,8 +6,9 @@ A Place represents a property listed by a user and can have
 multiple amenities and reviews associated with it.
 """
 
+from app import db
 from app.models.base_model import BaseModel
-
+from sqlalchemy.orm import validates
 
 class Place(BaseModel):
     """
@@ -23,142 +24,44 @@ class Place(BaseModel):
         reviews (list): List of associated Review instances.
         amenities (list): List of associated Amenity instances.
     """
+    __tablename__ = 'places'
 
-    def __init__(self, title, description, price,
-                 latitude, longitude, owner):
-        """
-        Initialize a Place instance.
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text,  nullable=True, default='')
+    price = db.Column(db.Float, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
 
-        Args:
-            title (str): Title of the place.
-            description (str): Description text.
-            price (float): Price per night (must be non-negative).
-            latitude (float): Latitude (-90 to 90).
-            longitude (float): Longitude (-180 to 180).
-            owner (User): Owner of the place.
+    @validates('title')
+    def validate_title(self, key, value):
+        if not value or len(value) > 100:
+            raise ValueError("title is required and must be <= 100 characters")
+        return value
 
-        Raises:
-            ValueError: If validation fails.
-        """
-        super().__init__()
-
-        if not title or len(title) > 100:
-            raise ValueError(
-                "title is required and must be <= 100 characters"
-            )
-
-        if owner is None:
-            raise ValueError("owner is required")
-
-        self.title = title
-        self.description = description or ""
-        self.price = price
-        self.latitude = latitude
-        self.longitude = longitude
-        self.owner = owner
-
-        self.reviews = []
-        self.amenities = []
-
-        # Maintain bidirectional relationship
-        owner.add_place(self)
-
-    # ==================================================
-    # Property: price
-    # ==================================================
-
-    @property
-    def price(self):
-        """Get the price per night."""
-        return self._price
-
-    @price.setter
-    def price(self, value):
-        """
-        Set the price per night.
-
-        Args:
-            value (float): New price value.
-
-        Raises:
-            ValueError: If price is negative.
-        """
+    @validates('price')
+    def validate_price(self, key, value):
         if value is None or float(value) < 0:
             raise ValueError("price must be a non-negative number")
-        self._price = float(value)
+        return float(value)
 
-    # ==================================================
-    # Property: latitude
-    # ==================================================
-
-    @property
-    def latitude(self):
-        """Get the latitude."""
-        return self._latitude
-
-    @latitude.setter
-    def latitude(self, value):
-        """
-        Set the latitude.
-
-        Args:
-            value (float): Latitude value.
-
-        Raises:
-            ValueError: If latitude is out of range.
-        """
+    @validates('latitude')
+    def validate_latitude(self, key, value):
         if not (-90 <= float(value) <= 90):
-            raise ValueError(
-                "latitude must be between -90 and 90"
-            )
-        self._latitude = float(value)
+            raise ValueError("latitude must be between -90 and 90")
+        return float(value)
 
-    # ==================================================
-    # Property: longitude
-    # ==================================================
-
-    @property
-    def longitude(self):
-        """Get the longitude."""
-        return self._longitude
-
-    @longitude.setter
-    def longitude(self, value):
-        """
-        Set the longitude.
-
-        Args:
-            value (float): Longitude value.
-
-        Raises:
-            ValueError: If longitude is out of range.
-        """
+    @validates('longitude')
+    def validate_longitude(self, key, value):
         if not (-180 <= float(value) <= 180):
-            raise ValueError(
-                "longitude must be between -180 and 180"
-            )
-        self._longitude = float(value)
-
-    # ==================================================
-    # Relationship methods
-    # ==================================================
+            raise ValueError("longitude must be between -180 and 180")
+        return float(value)
 
     def add_review(self, review):
-        """
-        Add a review to this place.
-
-        Args:
-            review (Review): Review instance.
-        """
+        """Add a review to this place."""
         self.reviews.append(review)
         self.save()
 
     def add_amenity(self, amenity):
-        """
-        Add an amenity to this place.
-
-        Args:
-            amenity (Amenity): Amenity instance.
-        """
+        """Add an amenity to this place."""
         self.amenities.append(amenity)
         self.save()
