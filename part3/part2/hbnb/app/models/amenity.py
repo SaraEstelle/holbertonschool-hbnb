@@ -1,6 +1,8 @@
 # app/models/amenity.py
 
+from app import db
 from app.models.base_model import BaseModel
+from sqlalchemy.orm import validates
 
 
 class Amenity(BaseModel):
@@ -13,37 +15,14 @@ class Amenity(BaseModel):
         places (list): Places that include this amenity.
     """
 
-    def __init__(self, name, description=""):
-        """
-        Initialize an Amenity instance.
+    __tablename__ = 'amenities'
 
-        Args:
-            name (str): Amenity name.
-            description (str): Amenity description.
+    name = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.Text,  nullable=True, default='')
 
-        Raises:
-            ValueError: If validation fails.
-        """
-        super().__init__()
 
-        self._validate_name(name)
-
-        self.name = name
-        self.description = description
-        self.places = []
-
-    def _validate_name(self, name):
-        """Validate name presence and length."""
-        if not name or len(name) > 50:
+    @validates('name')
+    def validate_name(self, key, value):
+        if not value or len(value) > 50:
             raise ValueError("name is required and must be <= 50 characters")
-
-    def add_place(self, place):
-        """
-        Associate this amenity with a place.
-
-        Args:
-            place (Place): Place instance.
-        """
-        self.places.append(place)
-        place.add_amenity(self)
-        self.save()
+        return value
