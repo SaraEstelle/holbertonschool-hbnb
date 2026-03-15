@@ -1,16 +1,16 @@
-    """
-    Base model module
+"""
+Base model module
 
-    Defines the BaseModel class mapped to SQLAlchemy
-    All other models inherits from this class.
-    """
+Defines the BaseModel class mapped to SQLAlchemy
+All other models inherits from this class.
+"""
 
 import uuid
 from datetime import datetime, timezone
 from app import db
 
 
-class BaseModel:
+class BaseModel(db.model):
     """
     Abstract nbase class for all SQLAlchemy models.
 
