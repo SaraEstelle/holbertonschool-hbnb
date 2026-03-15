@@ -16,7 +16,7 @@ class Review(BaseModel):
 
     __tablename__ = 'reviews'
 
-    text = db.Column(db.text,  nullable=False)
+    text = db.Column(db.Text,  nullable=False)
     rating = db.Column(db.Integer, nullable=False)
 
     #-----------------------
