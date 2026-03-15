@@ -28,6 +28,7 @@ class Review(BaseModel):
     # SQLAlchemy Validators
     #-----------------------
 
+
     @validates('text')
     def validate_text(self, key, value):
         if not value or value.strip() == '' :
