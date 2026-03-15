@@ -1,4 +1,9 @@
-# app/models/review.py
+"""
+Amenity model module.
+
+Mappe l'entite Amenity sur la table 'amenities' via SQLAlchemy.
+"""
+
 from app import db
 from app.models.base_model import BaseModel
 from sqlalchemy.orm import validates
