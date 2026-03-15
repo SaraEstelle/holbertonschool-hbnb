@@ -10,14 +10,10 @@ from datetime import datetime, timezone
 from app import db
 
 
-class BaseModel(db.model):
+class BaseModel(db.model): # db.Model obligatoire pour SQLAlchemy mappe les tables
     """
-    Abstract nbase class for all SQLAlchemy models.
-
-    Provides common attributes:
-    - id   : UUID primary key
-    - created_at : Timestamp of creation
-    - updated_at :Timestamp of last update
+    Classe de base pour tous les models SQLAlchemy.
+    on met __abstract__ = True pour que SQLAlchemy ne cree pas de table pour BaseModel lui-meme.
     """
 
     __abstract__ = True # No table created for BaseModel itself
@@ -51,6 +47,7 @@ class BaseModel(db.model):
         """
         Update object attributes from a dictionary.
         Only updates existing attributes.
+        ignored id and created_at pour pas les ecraser.
         """
         for key, value in data.items():
             if hasattr(self, key) and key not in ["id", "created_at"]:
