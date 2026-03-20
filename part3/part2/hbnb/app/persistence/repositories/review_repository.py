@@ -6,7 +6,7 @@ Located in:app/persistence/repositories/review_repository.py
 """
 
 from app.models.review import Review
-from app.persistence.repository import SQLAlechemyRepository
+from app.persistence.repository import SQLAlchemyRepository
 
 
 class ReviewRepository(SQLAlchemyRepository):
