@@ -9,6 +9,7 @@ multiple amenities and reviews associated with it.
 from app import db
 from app.models.base_model import BaseModel
 from sqlalchemy.orm import validates
+from app.models.sql_tables import place_amenity
 
 class Place(BaseModel):
     """
@@ -70,3 +71,13 @@ class Place(BaseModel):
         """Add an amenity to this place."""
         self.amenities.append(amenity)
         self.save()
+
+    #-------------------
+    # SQL Relation
+    #-------------------
+
+    owner_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+
+    reviews = db.relationship('Review', backref='place')
+    amenities = db.relationship('Amenity', secondary='place_amenity', backref='places')
+    

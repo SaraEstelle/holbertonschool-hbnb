@@ -151,3 +151,10 @@ class User(BaseModel):
         """
         self.reviews.append(review)
         self.save()
+
+    #-------------------
+    # SQL Relation 
+    #-------------------
+
+    places = db.relationship('Place', backref='owner')
+    reviews = db.relationship('Review', backref='user')

@@ -88,45 +88,45 @@ class SQLAlchemyRepository(Repository):
     """
 
 
-def __init__(self, model):
-    """Args:
-            model: The SQLAlchemy model class to manage (like User, Place).
-                """
-    from app import db
-    self.model = model
-    self.db = db
+    def __init__(self, model):
+        """Args:
+                model: The SQLAlchemy model class to manage (like User, Place).
+                    """
+        from app import db
+        self.model = model
+        self.db = db
 
-def add(self, obj):
-    """Add a new object to the database."""
-    self.db.session.add(obj)
-    self.db.session.commit()
-
-def get(self, obj_id):
-    """Retrieve an object by its primary key."""
-    return self.model.query.get(obj_id)
-
-def get_all(self):
-    """Retrieve all objects of this model."""
-    return self.model.query.all()
-
-def update(self, obj_id, data):
-    """Update an object's attributes by ID."""
-    obj =  self.get(obj_id)
-    if obj:
-        for key, value in data.items():
-            setattr(obj, key, value)
+    def add(self, obj):
+        """Add a new object to the database."""
+        self.db.session.add(obj)
         self.db.session.commit()
 
+    def get(self, obj_id):
+        """Retrieve an object by its primary key."""
+        return self.model.query.get(obj_id)
 
-def delete(self, obj_id):
-    """Delete an object by ID."""
-    obj = self.get(obj_id)
-    if obj:
-        self.db.session.delete(obj)
-        self.db.session.commit()
+    def get_all(self):
+        """Retrieve all objects of this model."""
+        return self.model.query.all()
 
-def get_by_attribute(self, attr_name, attr_value):
-    """Retrieve the first object matching a given attribute value."""
-    return self.model.query.filter_by(
-        **{attr_name: attr_value}
-    ).first()
+    def update(self, obj_id, data):
+        """Update an object's attributes by ID."""
+        obj =  self.get(obj_id)
+        if obj:
+            for key, value in data.items():
+                setattr(obj, key, value)
+            self.db.session.commit()
+
+
+    def delete(self, obj_id):
+        """Delete an object by ID."""
+        obj = self.get(obj_id)
+        if obj:
+            self.db.session.delete(obj)
+            self.db.session.commit()
+
+    def get_by_attribute(self, attr_name, attr_value):
+        """Retrieve the first object matching a given attribute value."""
+        return self.model.query.filter_by(
+            **{attr_name: attr_value}
+        ).first()

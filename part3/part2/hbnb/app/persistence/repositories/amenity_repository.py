@@ -6,7 +6,7 @@ Located in: app/persitence/repositories/amenity_repository.py
 """
 
 from app.models.amenity import Amenity
-from app.persistence.repository import SQLAlchemyRepositoy
+from app.persistence.repository import SQLAlchemyRepository
 
 
 class AmenityRepository(SQLAlchemyRepository):

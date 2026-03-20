@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from app import db
 
 
-class BaseModel(db.model): # db.Model obligatoire pour SQLAlchemy mappe les tables
+class BaseModel(db.Model): # db.Model obligatoire pour SQLAlchemy mappe les tables
     """
     Classe de base pour tous les models SQLAlchemy.
     on met __abstract__ = True pour que SQLAlchemy ne cree pas de table pour BaseModel lui-meme.

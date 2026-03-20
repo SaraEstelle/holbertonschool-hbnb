@@ -17,16 +17,16 @@ class UserRepository(SQLAlchemyRepository):
     with user-specific queries like email lookup
     """
 
-def __init__(self):
-    super().__init__(User)
+    def __init__(self):
+        super().__init__(User)
 
-def get_user_by_email(self, email):
-    """Retrieve a user by their email address.
+    def get_user_by_email(self, email):
+        """Retrieve a user by their email address.
 
-    Args:
-        email (str): The email to search for.
+        Args:
+            email (str): The email to search for.
 
-    Returns:
-        User or None: The matching user, or None if not found.
-    """
-    return self.model.query.filter_by(email=email).first()
+        Returns:
+            User or None: The matching user, or None if not found.
+        """
+        return self.model.query.filter_by(email=email).first()

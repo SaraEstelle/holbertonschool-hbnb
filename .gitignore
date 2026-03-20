@@ -2,3 +2,5 @@
 backup/
 **/backup/
 venv/
+part2/hbnb/app/__pycache__/__init__.cpython-312.pyc
+*.pyc
