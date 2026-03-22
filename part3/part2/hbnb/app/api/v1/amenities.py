@@ -19,10 +19,9 @@ api = Namespace('amenities', description='Amenity operations')
 
 # Define the amenity model for input validation and documentation
 amenity_model = api.model('Amenity', {
-    'name': fields.String(required=True, description='Name of the amenity')
-    'description': fields.String(description='Description of the amenity'
+    'name': fields.String(required=True, description='Name of the amenity'),
+    'description': fields.String(description='Description of the amenity')
 })
-
 
 @api.route('/')
 class AmenityList(Resource):
@@ -53,7 +52,7 @@ class AmenityList(Resource):
 
         return {
             'id': new_amenity.id,
-            'name': new_amenity.name
+            'name': new_amenity.name,
             'description': new_amenity.description
         }, 201
 
@@ -70,7 +69,7 @@ class AmenityList(Resource):
         return [
             {
                 'id': a.id,
-                'name': a.name
+                'name': a.name,
                 'description': a.description
             }
             for a in amenities
@@ -108,7 +107,7 @@ class AmenityResource(Resource):
 
         return {
             'id': amenity.id,
-            'name': amenity.name
+            'name': amenity.name,
             'description': amenity.description
         }, 200
 
