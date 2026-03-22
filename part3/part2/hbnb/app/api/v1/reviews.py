@@ -61,7 +61,7 @@ class ReviewList(Resource):
             return{'error': 'You cannot review your own place'}, 400
 
         #Cannot review the same place twice
-        existing_reviews = facade.get_reveiws_by_place(review_data['place_id'])
+        existing_reviews = facade.get_reviews_by_place(review_data['place_id'])
         for r in existing_reviews:
             if r.user.id == current_user:
                 return {'error': 'You have already reviewed this place'}, 400
