@@ -27,7 +27,7 @@ from app.api.v1.auth import api as auth_ns
 #Decclaration du schema JWT pour le bouton Authorize dans Swagger
 authorizations = {
     'Bearer': {
-        'tupe': 'apiKey',
+        'type': 'apiKey',
         'in': 'header',
         'name': 'Authorization',
         'description': 'Tape: Bearer <ton_token>'
