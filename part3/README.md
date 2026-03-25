@@ -298,6 +298,69 @@ Amenity >──────┘
 > Reviews is the **only entity** that supports `DELETE` in this part.
 
 ---
+## Database Schema
+
+This diagram represents the relational database structure of the HBnB application. It shows the five main tables and their relationships:
+
+- **users**: stores user information (name, email, hashed password, admin role).
+- **places**: represents the listings published by a user. Each listing belongs to a single user via `owner_id`.
+- **reviews**: reviews left by a user on a listing. Linked to both `users` and `places`.
+- **amenities**: list of available amenities (Wi-Fi, pool, etc.).
+- **place_amenity**: many-to-many association table between `places` and `amenities`.
+
+### Entity-Relationship Diagram
+
+```mermaid
+erDiagram
+  users {
+    string id PK
+    string first_name
+    string last_name
+    string email
+    string password
+    boolean is_admin
+    datetime created_at
+    datetime updated_at
+  }
+  places {
+    string id PK
+    string title
+    text description
+    float price
+    float latitude
+    float longitude
+    string owner_id FK
+    datetime created_at
+    datetime updated_at
+  }
+  reviews {
+    string id PK
+    text text
+    int rating
+    string user_id FK
+    string place_id FK
+    datetime created_at
+    datetime updated_at
+  }
+  amenities {
+    string id PK
+    string name
+    text description
+    datetime created_at
+    datetime updated_at
+  }
+  place_amenity {
+    string place_id FK
+    string amenity_id FK
+  }
+
+  users ||--o{ places : "owns"
+  users ||--o{ reviews : "writes"
+  places ||--o{ reviews : "receives"
+  places }o--o{ amenities : "place_amenity"
+```
+
+---
 
 ## Environment & Requirements
 
