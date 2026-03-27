@@ -1,6 +1,10 @@
 # app/services/facade.py
 
-from app.persistence.repository import InMemoryRepository
+from app.persistence.repositories.user_repository import UserRepository
+from app.persistence.repositories.place_repository import PlaceRepository
+from app.persistence.repositories.review_repository import ReviewRepository
+from app.persistence.repositories.amenity_repository import AmenityRepository
+from app.persistence.repository import SQLAlchemyRepository
 from app.models.user import User
 from app.models.place import Place
 from app.models.review import Review
@@ -11,14 +15,20 @@ class HBnBFacade:
     """
     Facade layer acting as the single entry point
     between the API layer and the business logic layer.
+
+    Uses dedicated reporisotries for each entity:
+        -UserRepository
+        -PlaceRepository
+        -ReviewRepository
+        -AmenityRepository
     """
 
     def __init__(self):
         """Initialize repositories for users, places, reviews, and amenities."""
-        self.user_repo = InMemoryRepository()
-        self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
+        self.user_repo = UserRepository()
+        self.place_repo = PlaceRepository()
+        self.review_repo = ReviewRepository()
+        self.amenity_repo = AmenityRepository()
 
     # ==================================================
     # USER METHODS
@@ -44,10 +54,9 @@ class HBnBFacade:
             first_name=user_data["first_name"],
             last_name=user_data["last_name"],
             email=user_data["email"],
-            password=user_data["password"],
             is_admin=user_data.get("is_admin", False),
         )
-
+        user.hash_password(user_data['password'])  #bcrypt hash
         self.user_repo.add(user)
         return user
 
@@ -57,32 +66,11 @@ class HBnBFacade:
 
     def get_user_by_email(self, email):
         """Retrieve a user by email."""
-        return self.user_repo.get_by_attribute("email", email)
+        return self.user_repo.get_user_by_email(email)
 
     def get_all_users(self):
         """Retrieve all users."""
         return self.user_repo.get_all()
-
-    def update_user(self, user_id, user_data):
-        """Update a user's profile and/or password."""
-        user = self.user_repo.get(user_id)
-        if not user:
-            return None
-
-        if "email" in user_data and user_data["email"] != user.email:
-            if self.get_user_by_email(user_data["email"]):
-                raise ValueError("Email already registered")
-
-        user.update_profile(
-            first_name=user_data.get("first_name", user.first_name),
-            last_name=user_data.get("last_name", user.last_name),
-            email=user_data.get("email", user.email),
-        )
-
-        if "password" in user_data:
-            user.change_password(user_data["password"])
-
-        return user
 
     def delete_user(self, user_id):
         """Delete a user by ID."""
@@ -95,20 +83,16 @@ class HBnBFacade:
             return None
 
         if "first_name" in user_data:
-            user._validate_name(user_data["first_name"], "first_name")
             user.first_name = user_data["first_name"]
         if "last_name" in user_data:
-            user._validate_name(user_data["last_name"], "last_name")
             user.last_name = user_data["last_name"]
         if "email" in user_data:
             existing = self.get_user_by_email(user_data["email"])
             if existing and existing.id != user_id:
                 raise ValueError("Email already exists")
-            user._validate_email(user_data["email"])
             user.email = user_data["email"]
         if "password" in user_data:
-            user._validate_password(user_data["password"])
-            user.set_password(user_data["password"])
+            user.hash_password(user_data["password"])
 
         user.save()
         return user
@@ -148,7 +132,7 @@ class HBnBFacade:
             price=place_data["price"],
             latitude=place_data["latitude"],
             longitude=place_data["longitude"],
-            owner=owner,
+            owner_id=place_data["owner_id"],
         )
 
         # Attach amenities if provided
@@ -256,9 +240,9 @@ class HBnBFacade:
 
         review = Review(
             rating=review_data["rating"],
-            text=review_data.get("text", ""),
-            user=user,
-            place=place,
+            text=review_data["text"],
+            user_id=review_data["user_id"],
+            place_id=review_data["place_id"],
         )
 
         self.review_repo.add(review)
@@ -278,11 +262,7 @@ class HBnBFacade:
         Returns:
             list[Review]: Reviews linked to that place.
         """
-        return [
-            r for r in self.review_repo.get_all()
-            if getattr(r, "place", None)
-            and getattr(r.place, "id", None) == place_id
-        ]
+        return self.review_repo.get_reviews_by_place(place_id)
 
     def get_all_reviews(self):
         """Retrieve all reviews."""
@@ -385,7 +365,7 @@ class HBnBFacade:
         return self.amenity_repo.delete(amenity_id)
 
     def reset(self):
-        self.user_repo = InMemoryRepository()
-        self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
+        self.user_repo = UserRepository()
+        self.place_repo = PlaceRepository()
+        self.review_repo = ReviewRepository()
+        self.amenity_repo = AmenityRepository()
