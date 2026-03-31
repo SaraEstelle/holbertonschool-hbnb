@@ -1,76 +1,46 @@
-# HBnB — Part 2: Business Logic & API Endpoints
+# HBnB — Part 3: Authentication & Database Persistence
 
-> **Holberton School** — Full-Stack Project
-> Part 2 of 4 · Python · Flask · flask-restx
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Authors](#authors)
-- [Project Architecture](#project-architecture)
-- [Project Structure](#project-structure)
-- [Layers Description](#layers-description)
-  - [Business Logic Layer](#business-logic-layer)
-  - [Persistence Layer](#persistence-layer)
-  - [Presentation Layer (API)](#presentation-layer-api)
-- [Entities & Relationships](#entities--relationships)
-- [API Endpoints](#api-endpoints)
-- [Environment & Requirements](#environment--requirements)
-- [Installation & Setup](#installation--setup)
-- [Running the Application](#running-the-application)
-- [Running the Tests](#running-the-tests)
-- [Test Results](#test-results)
-- [Known Limitations](#known-limitations)
-
----
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![Flask](https://img.shields.io/badge/Flask-3.x-lightgrey)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-red)
+![JWT](https://img.shields.io/badge/JWT-Authentication-orange)
+![SQLite](https://img.shields.io/badge/SQLite-Database-green)
+![License](https://img.shields.io/badge/License-Holberton-yellow)
 
 ## Overview
 
-This is **Part 2** of the HBnB project. The goal is to implement the core **Business Logic** and **API Endpoints** of a simplified AirBnB-like application, using Python, Flask, and flask-restx.
+Part 3 of the HBnB project extends the in-memory application from Part 2 by adding:
 
-In this part:
-- The **Business Logic Layer** is fully implemented with `User`, `Place`, `Review`, and `Amenity` entities, their validation rules, and their relationships.
-- The **Presentation Layer** exposes a RESTful API with CRUD endpoints for all four entities.
-- The **Persistence Layer** uses an **in-memory repository** (no database yet — SQL Alchemy integration is planned for Part 3).
-- The **Facade pattern** is used to decouple the API layer from the business logic.
+- **JWT Authentication** — secure login with access tokens
+- **RBAC** — role-based access control (admin vs regular user)
+- **SQLite persistence** — full database storage via SQLAlchemy ORM
+- **bcrypt password hashing** — secure storage of user passwords
+- **SQL schema** — schema.sql + initial_data.sql for clean DB setup
 
-> ⚠️ JWT authentication and role-based access control are **not included** in this part — they will be addressed in Part 3.
+---
 
-
-
-## Project Architecture
-
-The application follows a **3-layer architecture** with the **Facade pattern**:
+## Architecture
 
 ```
-┌────────────────────────────────────┐
-│        Presentation Layer          │
-│   Flask API · flask-restx · REST   │
-│  /api/v1/users  /places  /reviews  │
-└──────────────┬─────────────────────┘
-               │  calls
-               ▼
-┌────────────────────────────────────┐
-│         Facade (Services)          │
-│         HBnBFacade class           │
-│  Single entry point to the logic   │
-└──────────────┬─────────────────────┘
-               │  uses
-               ▼
-┌────────────────────────────────────┐
-│       Business Logic Layer         │
-│  User · Place · Review · Amenity   │
-│  BaseModel · Validation · Relations│
-└──────────────┬─────────────────────┘
-               │  persists via
-               ▼
-┌────────────────────────────────────┐
-│        Persistence Layer           │
-│     InMemoryRepository (Part 2)    │
-│   → SQL Alchemy in Part 3          │
-└────────────────────────────────────┘
+┌─────────────────────────────────┐
+│        API Layer (Flask-RESTx)  │  ← HTTP endpoints, Swagger UI
+└────────────────┬────────────────┘
+                 │
+┌────────────────▼────────────────┐
+│      Facade Layer (HBnBFacade)  │  ← business logic, validation
+└────────────────┬────────────────┘
+                 │
+┌────────────────▼────────────────┐
+│   Repository Layer (SQLAlchemy) │  ← CRUD operations, ORM queries
+└────────────────┬────────────────┘
+                 │
+┌────────────────▼────────────────┐
+│   Models Layer (db.Model)       │  ← User, Place, Review, Amenity
+└────────────────┬────────────────┘
+                 │
+┌────────────────▼────────────────┐
+│   SQLite Database               │  ← instance/development.db
+└─────────────────────────────────┘
 ```
 
 ---
@@ -78,499 +48,563 @@ The application follows a **3-layer architecture** with the **Facade pattern**:
 ## Project Structure
 
 ```
-part2/hbnb/
-│
-├── run.py                        # Application entry point
-├── config.py                     # Configuration (Dev / Default)
-├── requirements.txt              # Python dependencies
-│
+hbnb/
+├── run.py
+├── config.py
+├── requirements.txt
+├── schema.sql                    ← table creation with constraints
+├── initial_data.sql              ← admin user + 3 default amenities
 ├── app/
-│   ├── __init__.py               # App factory (create_app)
-│   │
+│   ├── __init__.py               ← factory: bcrypt, jwt, db, create_all
 │   ├── api/
-│   │   ├── __init__.py           # API Blueprint registration
+│   │   ├── __init__.py
 │   │   └── v1/
-│   │       ├── __init__.py
-│   │       ├── users.py          # User endpoints (POST, GET, PUT)
-│   │       ├── places.py         # Place endpoints (POST, GET, PUT)
-│   │       ├── reviews.py        # Review endpoints (POST, GET, PUT, DELETE)
-│   │       └── amenities.py      # Amenity endpoints (POST, GET, PUT)
-│   │
+│   │       ├── __init__.py       ← Swagger config + Authorize button
+│   │       ├── auth.py           ← POST /auth/login
+│   │       ├── users.py          ← CRUD users + RBAC
+│   │       ├── places.py         ← CRUD places + ownership check
+│   │       ├── reviews.py        ← CRUD reviews + ownership check
+│   │       └── amenities.py      ← admin only POST/PUT
 │   ├── models/
-│   │   ├── base_model.py         # BaseModel (id, created_at, updated_at)
-│   │   ├── user.py               # User model + validation
-│   │   ├── place.py              # Place model + validation
-│   │   ├── review.py             # Review model + validation
-│   │   └── amenity.py            # Amenity model + validation
-│   │
-│   ├── services/
-│   │   ├── __init__.py           # Facade singleton instance
-│   │   └── facade.py             # HBnBFacade — business logic orchestration
-│   │
-│   └── persistence/
-│       ├── __init__.py
-│       └── repository.py         # Abstract Repository + InMemoryRepository
-│
+│   │   ├── base_model.py         ← db.Model: id, created_at, updated_at
+│   │   ├── user.py               ← bcrypt + SQLAlchemy + validators
+│   │   ├── place.py              ← SQLAlchemy + FK + validators
+│   │   ├── review.py             ← SQLAlchemy + FK + validators
+│   │   ├── amenity.py            ← SQLAlchemy + validators
+│   │   └── sql_tables.py         ← place_amenity association table
+│   ├── persistence/
+│   │   ├── repository.py         ← SQLAlchemyRepository (generic CRUD)
+│   │   └── repositories/
+│   │       ├── user_repository.py      ← get_user_by_email()
+│   │       ├── place_repository.py     ← get_places_by_owner()
+│   │       ├── review_repository.py    ← get_reviews_by_place()
+│   │       └── amenity_repository.py   ← get_amenity_by_name()
+│   └── services/
+│       └── facade.py             ← single entry point for business logic
+├── instance/
+│   └── development.db            ← SQLite (auto-created)
 └── tests/
-    ├── __init__.py
-    ├── test_users.py
-    ├── test_places.py
-    ├── test_reviews.py
-    └── test_amenities.py
+    ├── run_tests.py              ← 68 automated DB tests (Python/SQLite)
+    ├── test_api.py               ← 59 automated HTTP API tests
+    ├── test_crud.sql             ← direct SQL tests
+    └── swagger_tests.md          ← manual Swagger test guide
 ```
 
 ---
 
-## Layers Description
+## Database Entity-Relationship Diagram
 
-### Business Logic Layer
+### Main diagram — 5 tables
 
-Located in `app/models/`. Each entity inherits from `BaseModel`.
+```mermaid
+erDiagram
+    USER {
+        char(36)     id          PK
+        varchar(50)  first_name
+        varchar(50)  last_name
+        varchar(120) email       UK
+        varchar(128) password
+        boolean      is_admin
+        datetime     created_at
+        datetime     updated_at
+    }
 
-#### `BaseModel` (`app/models/base_model.py`)
-Common base for all entities. Automatically assigns:
-- `id` — UUID4 string
-- `created_at` — UTC datetime at creation
-- `updated_at` — UTC datetime, refreshed on every `save()` call
+    PLACE {
+        char(36)      id          PK
+        varchar(255)  title
+        text          description
+        decimal(10_2) price
+        float         latitude
+        float         longitude
+        char(36)      owner_id    FK
+        datetime      created_at
+        datetime      updated_at
+    }
 
-#### `User` (`app/models/user.py`)
-Represents a registered user.
+    REVIEW {
+        char(36)  id        PK
+        text      text
+        int       rating
+        char(36)  user_id   FK
+        char(36)  place_id  FK
+        datetime  created_at
+        datetime  updated_at
+    }
 
-| Attribute | Type | Rules |
+    AMENITY {
+        char(36)     id          PK
+        varchar(255) name        UK
+        text         description
+        datetime     created_at
+        datetime     updated_at
+    }
+
+    PLACE_AMENITY {
+        char(36) place_id    FK
+        char(36) amenity_id  FK
+    }
+
+    USER ||--o{ PLACE          : "owns (owner_id)"
+    USER ||--o{ REVIEW         : "writes (user_id)"
+    PLACE ||--o{ REVIEW        : "receives (place_id)"
+    PLACE ||--o{ PLACE_AMENITY : "has"
+    AMENITY ||--o{ PLACE_AMENITY : "linked to"
+```
+
+### Extended diagram — with Reservation entity (bonus Task 10)
+
+```mermaid
+erDiagram
+    USER {
+        char(36)     id          PK
+        varchar(50)  first_name
+        varchar(50)  last_name
+        varchar(120) email       UK
+        varchar(128) password
+        boolean      is_admin
+        datetime     created_at
+        datetime     updated_at
+    }
+
+    PLACE {
+        char(36)      id          PK
+        varchar(255)  title
+        text          description
+        decimal(10_2) price
+        float         latitude
+        float         longitude
+        char(36)      owner_id    FK
+        datetime      created_at
+        datetime      updated_at
+    }
+
+    REVIEW {
+        char(36)  id        PK
+        text      text
+        int       rating
+        char(36)  user_id   FK
+        char(36)  place_id  FK
+        datetime  created_at
+        datetime  updated_at
+    }
+
+    AMENITY {
+        char(36)     id          PK
+        varchar(255) name        UK
+        text         description
+        datetime     created_at
+        datetime     updated_at
+    }
+
+    PLACE_AMENITY {
+        char(36) place_id    FK
+        char(36) amenity_id  FK
+    }
+
+    RESERVATION {
+        char(36)      id          PK
+        char(36)      user_id     FK
+        char(36)      place_id    FK
+        date          start_date
+        date          end_date
+        decimal(10_2) total_price
+        varchar(20)   status
+        datetime      created_at
+        datetime      updated_at
+    }
+
+    USER ||--o{ PLACE          : "owns (owner_id)"
+    USER ||--o{ REVIEW         : "writes (user_id)"
+    USER ||--o{ RESERVATION    : "makes (user_id)"
+    PLACE ||--o{ REVIEW        : "receives (place_id)"
+    PLACE ||--o{ PLACE_AMENITY : "has"
+    PLACE ||--o{ RESERVATION   : "is booked (place_id)"
+    AMENITY ||--o{ PLACE_AMENITY : "linked to"
+```
+
+> The `RESERVATION` entity is a future extension. `status` can be `pending`, `confirmed` or `cancelled`. `total_price` is computed from `start_date`, `end_date` and the place's price per night.
+
+### Database Constraints
+
+| Table | Constraint | Column |
 |---|---|---|
-| `first_name` | str | Required, max 50 chars |
-| `last_name` | str | Required, max 50 chars |
-| `email` | str | Required, valid format (regex) |
-| `password_hash` | str | SHA-256 hash of password |
-| `is_admin` | bool | Default `False` |
-| `places` | list | Places owned by the user |
-| `reviews` | list | Reviews written by the user |
+| `users` | UNIQUE | `email` |
+| `amenities` | UNIQUE | `name` |
+| `reviews` | UNIQUE | `(user_id, place_id)` |
+| `place_amenity` | PRIMARY KEY composite | `(place_id, amenity_id)` |
+| `places` | CHECK | `price > 0` |
+| `places` | CHECK | `latitude BETWEEN -90 AND 90` |
+| `places` | CHECK | `longitude BETWEEN -180 AND 180` |
+| `reviews` | CHECK | `rating BETWEEN 1 AND 5` |
 
-Password is **never stored in plain text** — only its SHA-256 hash is kept. The response from the API **never exposes** the password or its hash.
+### Foreign Key Strategy
 
-#### `Place` (`app/models/place.py`)
-Represents a property listed for rent.
-
-| Attribute | Type | Rules |
+| Relationship | ON DELETE | Reason |
 |---|---|---|
-| `title` | str | Required, max 100 chars |
-| `description` | str | Optional |
-| `price` | float | Non-negative (property with setter) |
-| `latitude` | float | Between -90 and 90 (property with setter) |
-| `longitude` | float | Between -180 and 180 (property with setter) |
-| `owner` | User | Required, bidirectional relationship |
-| `amenities` | list | Associated Amenity instances |
-| `reviews` | list | Associated Review instances |
-
-#### `Review` (`app/models/review.py`)
-Represents a review written by a user for a place.
-
-| Attribute | Type | Rules |
-|---|---|---|
-| `text` | str | Required, non-empty |
-| `rating` | int | Between 1 and 5 |
-| `user` | User | Required |
-| `place` | Place | Required |
-
-> Business rule: **an owner cannot review their own place** — enforced in the Facade.
-
-#### `Amenity` (`app/models/amenity.py`)
-Represents a feature associated with places (e.g., Wi-Fi, Pool).
-
-| Attribute | Type | Rules |
-|---|---|---|
-| `name` | str | Required, max 50 chars |
-| `description` | str | Optional |
-| `places` | list | Places that have this amenity |
+| `users` → `places` | CASCADE | Deleting a user removes their places |
+| `users` → `reviews` | CASCADE | Deleting a user removes their reviews |
+| `places` → `reviews` | RESTRICT | Cannot delete a place with active reviews |
+| `places` → `place_amenity` | CASCADE | Deleting a place clears amenity links |
+| `amenities` → `place_amenity` | CASCADE | Deleting an amenity clears place links |
 
 ---
 
-### Persistence Layer
+## Installation
 
-Located in `app/persistence/repository.py`.
+```bash
+# Clone the repository
+git clone https://github.com/holbertonschool-hbnb
+cd holbertonschool-hbnb/part3/hbnb
 
-Two classes are defined:
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate
 
-- **`Repository`** (abstract): Defines the interface — `add`, `get`, `get_all`, `update`, `delete`, `get_by_attribute`.
-- **`InMemoryRepository`**: Concrete implementation using a Python `dict`. All data is lost when the server restarts.
-
-> This layer will be replaced by a **SQL Alchemy** implementation in Part 3.
+# Install dependencies
+pip install -r requirements.txt
+```
 
 ---
 
-### Presentation Layer (API)
+## Getting Started
 
-Located in `app/api/v1/`. Built with **flask-restx**.
+### First launch
 
-Each endpoint file defines:
-- A `Namespace` with input/output models
-- `Resource` classes for collection-level (`/`) and item-level (`/<id>`) routes
-- HTTP responses with appropriate status codes
+```bash
+# Create and seed the database
+sqlite3 instance/development.db < schema.sql
+sqlite3 instance/development.db < initial_data.sql
 
-Swagger documentation is **auto-generated** and accessible at:
+# Start the server
+python3 run.py
 ```
-http://127.0.0.1:5000/api/v1/
+
+The server runs on `http://127.0.0.1:5000`
+Swagger UI is available at `http://127.0.0.1:5000/api/v1/`
+
+### Reset the database
+
+```bash
+rm -f instance/development.db
+sqlite3 instance/development.db < schema.sql
+sqlite3 instance/development.db < initial_data.sql
 ```
-
-#### Facade (`app/services/facade.py`)
-`HBnBFacade` is the **single point of contact** between the API and the models. It:
-- Instantiates and validates all entities
-- Manages relationships between objects
-- Interacts with the repositories
-
-The facade singleton is created once in `app/services/__init__.py` and reset on every `create_app()` call to ensure test isolation.
 
 ---
 
-## Entities & Relationships
+## Default Data
 
-```
-User ──────< Place
-  │              │
-  └──────< Review >──────┘
-               │
-Amenity >──────┘
-```
-
-- A **User** can own multiple **Places** and write multiple **Reviews**
-- A **Place** belongs to one **User** (owner) and can have multiple **Amenities** and **Reviews**
-- A **Review** belongs to one **User** and one **Place**
-- An **Amenity** can be associated with multiple **Places**
-- All relationships are **bidirectional** — both sides are updated on creation
+| Data | Value |
+|---|---|
+| Admin email | `admin@hbnb.io` |
+| Admin password | `admin1234` |
+| Admin ID | `36c9050e-ddd3-4c3b-9731-9f487208bbc1` |
+| WiFi UUID | `7c9fdf4d-99be-4b1c-8c2e-5aea5db0d0eb` |
+| Swimming Pool UUID | `ae5ae8a5-0203-451b-9cb8-6086e5b2f41e` |
+| Air Conditioning UUID | `97bc1cc5-3dcd-439e-894f-e9986dedd012` |
 
 ---
 
 ## API Endpoints
 
-### Users `/api/v1/users/`
-
-| Method | Endpoint | Description | Status codes |
+### Authentication
+| Method | Endpoint | Access | Description |
 |---|---|---|---|
-| POST | `/api/v1/users/` | Create a user | 201, 400, 422 |
-| GET | `/api/v1/users/` | List all users | 200 |
-| GET | `/api/v1/users/<id>` | Get user by ID | 200, 404 |
-| PUT | `/api/v1/users/<id>` | Update a user | 200, 400, 404, 422 |
+| POST | `/api/v1/auth/login` | Public | Login and get JWT token |
 
-> `DELETE` is not implemented for users in this part.
-> `password` is never returned in any response.
-> `422` is returned when an email already exists (duplicate).
-
----
-
-### Amenities `/api/v1/amenities/`
-
-| Method | Endpoint | Description | Status codes |
+### Users
+| Method | Endpoint | Access | Description |
 |---|---|---|---|
-| POST | `/api/v1/amenities/` | Create an amenity | 201, 400 |
-| GET | `/api/v1/amenities/` | List all amenities | 200 |
-| GET | `/api/v1/amenities/<id>` | Get amenity by ID | 200, 404 |
-| PUT | `/api/v1/amenities/<id>` | Update an amenity | 200, 400, 404 |
+| POST | `/api/v1/users/` | Admin only | Create a user |
+| GET | `/api/v1/users/` | Public | List all users |
+| GET | `/api/v1/users/<id>` | Public | Get user by ID |
+| PUT | `/api/v1/users/<id>` | Own account / Admin | Update user |
 
-> `DELETE` is not implemented for amenities in this part.
-
----
-
-### Places `/api/v1/places/`
-
-| Method | Endpoint | Description | Status codes |
+### Amenities
+| Method | Endpoint | Access | Description |
 |---|---|---|---|
-| POST | `/api/v1/places/` | Create a place | 201, 400 |
-| GET | `/api/v1/places/` | List all places | 200 |
-| GET | `/api/v1/places/<id>` | Get place by ID (with owner & amenities) | 200, 404 |
-| PUT | `/api/v1/places/<id>` | Update a place | 200, 400, 404 |
+| POST | `/api/v1/amenities/` | Admin only | Create an amenity |
+| GET | `/api/v1/amenities/` | Public | List all amenities |
+| GET | `/api/v1/amenities/<id>` | Public | Get amenity by ID |
+| PUT | `/api/v1/amenities/<id>` | Admin only | Update amenity |
 
-> `DELETE` is not implemented for places in this part.
-> The GET by ID response includes the full owner object and amenities list.
-
----
-
-### Reviews `/api/v1/reviews/`
-
-| Method | Endpoint | Description | Status codes |
+### Places
+| Method | Endpoint | Access | Description |
 |---|---|---|---|
-| POST | `/api/v1/reviews/` | Create a review | 201, 400 |
-| GET | `/api/v1/reviews/` | List all reviews | 200 |
-| GET | `/api/v1/reviews/<id>` | Get review by ID | 200, 404 |
-| PUT | `/api/v1/reviews/<id>` | Update a review | 200, 400, 404 |
-| DELETE | `/api/v1/reviews/<id>` | Delete a review | 200, 404 |
-| GET | `/api/v1/places/<id>/reviews` | Get all reviews for a place | 200, 404 |
+| POST | `/api/v1/places/` | Authenticated | Create a place |
+| GET | `/api/v1/places/` | Public | List all places |
+| GET | `/api/v1/places/<id>` | Public | Get place with owner + amenities |
+| PUT | `/api/v1/places/<id>` | Owner / Admin | Update place |
+| GET | `/api/v1/places/<id>/reviews` | Public | Get all reviews for a place |
 
-> Reviews is the **only entity** that supports `DELETE` in this part.
-
----
-## Database Schema
-
-This diagram represents the relational database structure of the HBnB application. It shows the five main tables and their relationships:
-
-- **users**: stores user information (name, email, hashed password, admin role).
-- **places**: represents the listings published by a user. Each listing belongs to a single user via `owner_id`.
-- **reviews**: reviews left by a user on a listing. Linked to both `users` and `places`.
-- **amenities**: list of available amenities (Wi-Fi, pool, etc.).
-- **place_amenity**: many-to-many association table between `places` and `amenities`.
-
-### Entity-Relationship Diagram
-
-```mermaid
-erDiagram
-  users {
-    string id PK
-    string first_name
-    string last_name
-    string email
-    string password
-    boolean is_admin
-    datetime created_at
-    datetime updated_at
-  }
-  places {
-    string id PK
-    string title
-    text description
-    float price
-    float latitude
-    float longitude
-    string owner_id FK
-    datetime created_at
-    datetime updated_at
-  }
-  reviews {
-    string id PK
-    text text
-    int rating
-    string user_id FK
-    string place_id FK
-    datetime created_at
-    datetime updated_at
-  }
-  amenities {
-    string id PK
-    string name
-    text description
-    datetime created_at
-    datetime updated_at
-  }
-  place_amenity {
-    string place_id FK
-    string amenity_id FK
-  }
-
-  users ||--o{ places : "owns"
-  users ||--o{ reviews : "writes"
-  places ||--o{ reviews : "receives"
-  places }o--o{ amenities : "place_amenity"
-```
+### Reviews
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| POST | `/api/v1/reviews/` | Authenticated | Create a review |
+| GET | `/api/v1/reviews/` | Public | List all reviews |
+| GET | `/api/v1/reviews/<id>` | Public | Get review by ID |
+| PUT | `/api/v1/reviews/<id>` | Author / Admin | Update review |
+| DELETE | `/api/v1/reviews/<id>` | Author / Admin | Delete review |
 
 ---
 
-## Environment & Requirements
+## RBAC Access Rules
 
-### Python version
+| Action | No token | Regular user | Admin |
+|---|---|---|---|
+| Create user | 401 | 403 | 201 |
+| Update own profile | 401 | 200 | 200 |
+| Update other's profile | 401 | 403 | 200 |
+| Create amenity | 401 | 403 | 201 |
+| Update amenity | 401 | 403 | 200 |
+| Create place | 401 | 201 | 201 |
+| Update own place | 401 | 200 | 200 |
+| Update other's place | 401 | 403 | 200 |
+| Create review | 401 | 201 | 201 |
+| Review own place | 401 | 400 | 400 |
+| Update own review | 401 | 200 | 200 |
+| Update other's review | 401 | 403 | 200 |
+| Delete own review | 401 | 200 | 200 |
+| Delete other's review | 401 | 403 | 200 |
 
-```
-Python 3.10+
-```
+---
 
-### Dependencies (`requirements.txt`)
+## API Usage Examples
 
-```
-flask
-flask-restx
-```
-
-Install with:
-```bash
-pip install -r requirements.txt
-```
-
-### Recommended: use a virtual environment
+### 1. Login and get a token
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate      # Linux / macOS
-venv\Scripts\activate         # Windows
+curl -X POST http://127.0.0.1:5000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@hbnb.io", "password": "admin1234"}'
+```
+
+**Response 200:**
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
 ```
 
 ---
 
-## Installation & Setup
+### 2. Create a user (admin token required)
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/holbertonschool/holbertonschool-hbnb.git
-cd holbertonschool-hbnb/part2/hbnb
+curl -X POST http://127.0.0.1:5000/api/v1/users/ \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john@test.com",
+    "password": "password123"
+  }'
+```
 
-# 2. Create and activate virtual environment
-python3 -m venv venv
-source venv/bin/activate
+**Response 201:**
+```json
+{
+  "id": "a1b2c3d4-...",
+  "first_name": "John",
+  "last_name": "Doe",
+  "email": "john@test.com"
+}
+```
 
-# 3. Install dependencies
-pip install -r requirements.txt
+**Response 403 (regular user):**
+```json
+{"error": "Admin privileges required"}
+```
+
+**Response 422 (duplicate email):**
+```json
+{"error": "Email already exists"}
 ```
 
 ---
 
-## Running the Application
+### 3. Create a place
 
 ```bash
-python run.py
+curl -X POST http://127.0.0.1:5000/api/v1/places/ \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Paris Apartment",
+    "description": "Beautiful flat near the Eiffel Tower",
+    "price": 120.00,
+    "latitude": 48.8566,
+    "longitude": 2.3522,
+    "amenities": ["7c9fdf4d-99be-4b1c-8c2e-5aea5db0d0eb"]
+  }'
 ```
 
-The server starts on `http://127.0.0.1:5000`.
+**Response 201:**
+```json
+{
+  "id": "72486b52-...",
+  "title": "Paris Apartment",
+  "price": 120.0,
+  "latitude": 48.8566,
+  "longitude": 2.3522,
+  "owner_id": "<jwt_user_id>"
+}
+```
 
-Swagger UI is available at:
+**Response 400 (invalid price):**
+```json
+{"error": "price must be greater than 0"}
 ```
-http://127.0.0.1:5000/api/v1/
+
+---
+
+### 4. Get place details — owner + amenities nested
+
+```bash
+curl -X GET http://127.0.0.1:5000/api/v1/places/72486b52-...
 ```
+
+**Response 200:**
+```json
+{
+  "id": "72486b52-...",
+  "title": "Paris Apartment",
+  "description": "Beautiful flat near the Eiffel Tower",
+  "price": 120.0,
+  "latitude": 48.8566,
+  "longitude": 2.3522,
+  "owner": {
+    "id": "36c9050e-...",
+    "first_name": "Admin",
+    "last_name": "HBnB",
+    "email": "admin@hbnb.io"
+  },
+  "amenities": [
+    {"id": "7c9fdf4d-...", "name": "WiFi"}
+  ]
+}
+```
+
+---
+
+### 5. Create a review
+
+```bash
+curl -X POST http://127.0.0.1:5000/api/v1/reviews/ \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Amazing place, highly recommend!",
+    "rating": 5,
+    "place_id": "72486b52-..."
+  }'
+```
+
+**Response 201:**
+```json
+{
+  "id": "cccc0001-...",
+  "text": "Amazing place, highly recommend!",
+  "rating": 5,
+  "user_id": "<jwt_user_id>",
+  "place_id": "72486b52-..."
+}
+```
+
+**Response 400 (own place):**
+```json
+{"error": "You cannot review your own place"}
+```
+
+**Response 400 (duplicate):**
+```json
+{"error": "You have already reviewed this place"}
+```
+
+---
+
+### 6. Common error responses
+
+| Scenario | Code | Response |
+|---|---|---|
+| No token | 401 | `{"msg": "Missing Authorization Header"}` |
+| Expired token | 401 | `{"msg": "Token has expired"}` |
+| Not admin | 403 | `{"error": "Admin privileges required"}` |
+| Not owner | 403 | `{"error": "Unauthorized action"}` |
+| Not found | 404 | `{"error": "Place not found"}` |
+| Duplicate email | 422 | `{"error": "Email already exists"}` |
+| Invalid price | 400 | `{"error": "price must be greater than 0"}` |
+| Invalid rating | 400 | `{"error": "Rating must be between 1 and 5"}` |
 
 ---
 
 ## Running the Tests
 
-Tests are located in the `tests/` directory and use Python's built-in `unittest` framework. They perform **black-box testing** against the actual Flask test client — no mocking.
-
-### Run all tests
+### Reset DB before each test run
 
 ```bash
-python -m unittest discover -s tests -v
+rm -f instance/development.db
+sqlite3 instance/development.db < schema.sql
+sqlite3 instance/development.db < initial_data.sql
 ```
 
-### Run a specific test file
+### DB Python tests — 68 tests
 
 ```bash
-python -m unittest tests/test_users.py -v
-python -m unittest tests/test_places.py -v
-python -m unittest tests/test_reviews.py -v
-python -m unittest tests/test_amenities.py -v
+python3 tests/run_tests.py
 ```
 
-### Test isolation
+Covers: initial data, CRUD for all entities, FK constraints, relations, RBAC, ordered deletion.
 
-Each test class calls `create_app()` in its `setUp`, which triggers `facade.reset()` — this clears all in-memory data before every test, ensuring full isolation between test cases.
+### API HTTP tests — 59 tests
 
-### Test files overview
+```bash
+# Terminal 1
+python3 run.py
 
-#### `test_users.py`
-Tests the `/api/v1/users/` endpoints.
+# Terminal 2
+python3 tests/test_api.py
+```
 
-| Test | What it verifies |
-|---|---|
-| `test_create_user_success` | POST returns 201 with id, first_name, email and no password field |
-| `test_create_user_duplicate_email` | POST returns 422 when email already exists |
-| `test_create_user_invalid_email` | POST returns 400 for malformed email |
-| `test_create_user_empty_first_name` | POST returns 400 for empty first_name |
-| `test_create_user_name_too_long` | POST returns 400 when first_name exceeds 50 chars |
-| `test_create_user_missing_field` | POST returns 400 when required fields are missing |
-| `test_get_all_users_empty` | GET returns 200 and empty list |
-| `test_get_all_users` | GET returns 200 and list of 1 after creation |
-| `test_get_user_by_id_success` | GET by ID returns 200 without password |
-| `test_get_user_not_found` | GET with fake ID returns 404 |
-| `test_update_user_success` | PUT returns 200 with updated first_name |
-| `test_update_user_not_found` | PUT with fake ID returns 404 |
-| `test_update_user_duplicate_email` | PUT returns 422 when email already taken by another user |
+Covers: Auth (5), Users (10), Amenities (8), Places (9), Reviews (14), RBAC (8), Relations (5).
 
-#### `test_amenities.py`
-Tests the `/api/v1/amenities/` endpoints.
+### Direct SQL tests
 
-| Test | What it verifies |
-|---|---|
-| `test_create_amenity_success` | POST returns 201 with id and name |
-| `test_create_amenity_empty_name` | POST returns 400 for empty name |
-| `test_create_amenity_name_too_long` | POST returns 400 when name exceeds 50 chars |
-| `test_create_amenity_missing_name` | POST returns 400 when name field is absent |
-| `test_get_all_amenities_empty` | GET returns 200 and empty list |
-| `test_get_all_amenities` | GET returns 200 and list of 1 after creation |
-| `test_get_amenity_by_id` | GET by ID returns 200 |
-| `test_get_amenity_not_found` | GET with fake ID returns 404 |
-| `test_update_amenity_success` | PUT returns 200 with success message |
-| `test_update_amenity_not_found` | PUT with fake ID returns 404 |
-
-#### `test_places.py`
-Tests the `/api/v1/places/` endpoints. setUp creates an owner user automatically.
-
-| Test | What it verifies |
-|---|---|
-| `test_create_place_success` | POST returns 201 with id and title |
-| `test_create_place_invalid_owner` | POST returns 400 for non-existent owner_id |
-| `test_create_place_negative_price` | POST returns 400 for negative price |
-| `test_create_place_invalid_latitude` | POST returns 400 when latitude > 90 |
-| `test_create_place_invalid_longitude` | POST returns 400 when longitude > 180 |
-| `test_create_place_empty_title` | POST returns 400 for empty title |
-| `test_get_all_places_empty` | GET returns 200 and empty list |
-| `test_get_all_places` | GET returns 200 and list of 1 after creation |
-| `test_get_place_by_id` | GET by ID returns 200 with owner, amenities, price |
-| `test_get_place_not_found` | GET with fake ID returns 404 |
-| `test_update_place_not_found` | PUT with fake ID returns 404 |
-| `test_update_place_success` ⚠️ | **Expected failure** — see Known Limitations |
-
-#### `test_reviews.py`
-Tests the `/api/v1/reviews/` endpoints. setUp creates an owner, a separate reviewer user, and a place.
-
-| Test | What it verifies |
-|---|---|
-| `test_create_review_success` | POST returns 201 with id, text, rating |
-| `test_create_review_invalid_rating_high` | POST returns 400 for rating > 5 |
-| `test_create_review_invalid_rating_low` | POST returns 400 for rating < 1 |
-| `test_create_review_empty_text` | POST returns 400 for empty text |
-| `test_create_review_invalid_user` | POST returns 400 for non-existent user_id |
-| `test_create_review_invalid_place` | POST returns 400 for non-existent place_id |
-| `test_owner_cannot_review_own_place` | POST returns 400 when owner tries to review their own place |
-| `test_get_all_reviews_empty` | GET returns 200 and empty list |
-| `test_get_all_reviews` | GET returns 200 and list of 1 after creation |
-| `test_get_review_by_id` | GET by ID returns 200 with user_id, place_id, text |
-| `test_get_review_not_found` | GET with fake ID returns 404 |
-| `test_update_review_not_found` | PUT with fake ID returns 404 |
-| `test_update_review_invalid_rating` | PUT returns 400 for rating = 0 |
-| `test_update_review_success` ⚠️ | **Expected failure** — see Known Limitations |
-| `test_delete_review_success` | DELETE returns 200 with message |
-| `test_delete_review_not_found` | DELETE with fake ID returns 404 |
-| `test_delete_review_then_get` | DELETE then GET returns 404 (resource gone) |
-| `test_get_reviews_by_place` | GET /places/{id}/reviews returns 200 and list of 1 |
-| `test_get_reviews_by_place_not_found` | GET /places/fake-id/reviews returns 404 |
+```bash
+sqlite3 instance/development.db < tests/test_crud.sql
+```
 
 ---
 
 ## Test Results
 
-Running `python -m unittest discover -s tests -v` produces:
+| Suite | Tests | Result |
+|---|---|---|
+| `test_api.py` — HTTP API | 59/59 | ✅ All passed |
+| `run_tests.py` — DB Python | 65/68 | ✅ (3 expected FAIL) |
+| `test_crud.sql` — SQL direct | sections 0→3, 6→7 | ✅ |
 
-```
-----------------------------------------------------------------------
-Ran 54 tests in ~0.28s
-
-OK (expected failures=2)
-```
-
-- **52 tests** → `ok` ✅
-- **2 tests** → `expected failure` ✅ (intentional, documented below)
-- **0 failures**, **0 errors**
+> The 3 failures in `run_tests.py` (tests 3.10, 5.5, 5.6) are **intentional**: the project uses `ON DELETE CASCADE` on user→places and user→reviews, per the team's architecture decision. The test script was written expecting `RESTRICT` — this mismatch is documented and accepted.
 
 ---
 
-## Known Limitations
+## Swagger UI
 
-### `test_update_place_success` and `test_update_review_success` — Expected Failures
+1. Start the server: `python3 run.py`
+2. Open `http://127.0.0.1:5000/api/v1/`
+3. Call **POST /auth/login** → copy the `access_token`
+4. Click **Authorize** → type `Bearer <token>` → Authorize
+5. All protected endpoints are now accessible
 
-These two tests are marked with `@unittest.expectedFailure` and are **intentionally failing**.
+> If you get `401 Token has expired`, re-login and paste the new token in Authorize.
 
-**Why:** The `PUT` endpoints for places and reviews currently return:
-```json
-{ "message": "Place updated successfully" }
-{ "message": "Review updated successfully" }
-```
-
-The tests verify that the updated field values (e.g., `title`, `price`, `text`, `rating`) are returned in the response body. Since the API only returns a confirmation message and not the updated object, accessing those keys raises a `KeyError`.
-
-**This is a known design choice** for this part. Returning the full updated object in PUT responses is planned as an improvement in a future iteration.
-
-**Impact:** Zero — all other 52 tests pass. The `@unittest.expectedFailure` decorator ensures the test suite reports `OK` and these cases are properly documented rather than silently ignored.
-
+---
 
 ## Authors
 
-| Name | GitHub |
-|---|---|
-| Sara Rebati | [@saraestelle](https://github.com/saraestelle) |
-| Valentin Planchon | [@valentinplanchon](https://github.com/valentinplanchon) |
-| Damien Rossi | [@damienrossi](https://github.com/damienrossi) |
+- **Sara Rebati**
+- **Valentin Planchon**
+- **Damien Rossi**
 
----
+Holberton School — 2026

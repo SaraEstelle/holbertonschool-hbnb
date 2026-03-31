@@ -36,6 +36,9 @@ def create_app(config_class="config.DevelopmentConfig"):
     jwt.init_app(app)
     db.init_app(app)
 
+    with app.app_context():
+        db.create_all()
+
     from app.services import facade
     facade.reset()
 

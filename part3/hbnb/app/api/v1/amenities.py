@@ -136,6 +136,10 @@ class AmenityResource(Resource):
             400 Bad Request: If input data is invalid
             404 Not Found: If the amenity does not exist
         """
+        claims = get_jwt()
+        if not claims.get('is_admin'):
+            return {'error' : 'Admin privileges required'}, 403
+
         amenity_data = api.payload
 
         try:

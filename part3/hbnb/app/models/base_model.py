@@ -25,13 +25,13 @@ class BaseModel(db.Model): # db.Model obligatoire pour SQLAlchemy mappe les tabl
     )
     created_at = db.Column(
         db.DateTime,
-        default=datetime.now(timezone.utc),
+        default=lambda: datetime.now(timezone.utc),
         nullable=False
     )
     updated_at = db.Column(
         db.DateTime,
-        default=datetime.now(timezone.utc),
-        onupdate=datetime.now(timezone.utc),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
         nullable=False
     )
 
