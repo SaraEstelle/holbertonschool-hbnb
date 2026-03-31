@@ -46,8 +46,8 @@ class Place(BaseModel):
 
     @validates('price')
     def validate_price(self, key, value):
-        if value is None or float(value) < 0:
-            raise ValueError("price must be a non-negative number")
+        if value is None or float(value) <= 0:
+            raise ValueError("price must be greater than 0")
         return float(value)
 
     @validates('latitude')
@@ -80,4 +80,3 @@ class Place(BaseModel):
 
     reviews = db.relationship('Review', backref='place')
     amenities = db.relationship('Amenity', secondary='place_amenity', backref='places')
-    
