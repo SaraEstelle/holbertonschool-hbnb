@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS places (
 CREATE TABLE IF NOT EXISTS amenities (
     id          CHAR(36)     PRIMARY KEY,
     name        VARCHAR(255) NOT NULL UNIQUE,
+    description TEXT         DEFAULT '',
     created_at  DATETIME     DEFAULT CURRENT_TIMESTAMP,
     updated_at  DATETIME     DEFAULT CURRENT_TIMESTAMP
 );
