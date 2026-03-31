@@ -42,7 +42,7 @@ api = Api(
     description="HBnB Application REST API (Version 1)",
     doc="/",
     authorizations=authorizations,
-    security='Bearer'
+    security=[{'Bearer': []}]
 )
 
 # Register namespaces with version prefix
