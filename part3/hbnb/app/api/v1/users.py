@@ -222,9 +222,6 @@ class UserResource(Resource):
             'email': user.email
         }, 200
 
-@api.route('/<user_id>')
-class UserResource(Resource):
-
     @jwt_required()
     @api.response(200, 'User successfully deleted')
     @api.response(400, 'Cannot delete your own account')
