@@ -320,10 +320,9 @@ SELECT title FROM places WHERE id = 'bbbb0001-0000-0000-0000-000000000000';
 -- ATTENDU : Updated Test Place
 
 -- --------------------------
--- DELETE
+-- DELETE (CASCADE)
 -- --------------------------
-
--- TEST 3.11 — Supprimer place avec reviews (doit echouer — on cree une review d'abord)
+-- Inserer une review pour tester la cascade
 INSERT INTO reviews (id, text, rating, user_id, place_id, created_at, updated_at)
 VALUES (
     'cccc0001-0000-0000-0000-000000000000',
@@ -333,9 +332,31 @@ VALUES (
     CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 );
 
-SELECT '-- TEST 3.11: Supprimer place avec reviews (doit echouer)' AS test;
+-- TEST 3.11 — Supprimer place avec reviews : CASCADE -> reussit + review supprimee
+SELECT '-- TEST 3.11: Supprimer place avec reviews (CASCADE -> reussit)' AS test;
 DELETE FROM places WHERE id = 'bbbb0001-0000-0000-0000-000000000000';
--- ATTENDU : ERREUR FOREIGN KEY constraint failed
+SELECT COUNT(*) AS nb_places FROM places WHERE id = 'bbbb0001-0000-0000-0000-000000000000';
+-- ATTENDU : 0 (supprime par CASCADE)
+SELECT COUNT(*) AS nb_reviews_cascade FROM reviews WHERE place_id = 'bbbb0001-0000-0000-0000-000000000000';
+-- ATTENDU : 0 (review supprimee en cascade)
+
+-- Recreer la place et la review pour les sections suivantes
+INSERT INTO places (id, title, description, price, latitude, longitude, owner_id, created_at, updated_at)
+VALUES (
+    'bbbb0001-0000-0000-0000-000000000000',
+    'Test Place', 'Nice place for testing',
+    99.99, 48.8566, 2.3522,
+    '11111111-1111-1111-1111-111111111111',
+    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+);
+INSERT INTO reviews (id, text, rating, user_id, place_id, created_at, updated_at)
+VALUES (
+    'cccc0001-0000-0000-0000-000000000000',
+    'Test review', 4,
+    '22222222-2222-2222-2222-222222222222',
+    'bbbb0001-0000-0000-0000-000000000000',
+    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+);
 
 -- ============================================================
 -- SECTION 4 — CRUD : REVIEWS
@@ -526,16 +547,44 @@ VALUES (
     'ffffffff-ffff-ffff-ffff-ffffffffffff'
 );
 -- ATTENDU : ERREUR FOREIGN KEY constraint failed
-
--- TEST 5.6 — Supprimer amenity liee a une place (doit echouer)
-SELECT '-- TEST 5.6: Supprimer amenity liee a une place (doit echouer)' AS test;
+-- TEST 5.6 — Supprimer amenity liee a une place (CASCADE -> reussit)
+-- Notre schema: amenities -> place_amenity ON DELETE CASCADE
+SELECT '-- TEST 5.6: Supprimer amenity liee a une place (CASCADE -> reussit)' AS test;
 DELETE FROM amenities WHERE id = '7c9fdf4d-99be-4b1c-8c2e-5aea5db0d0eb';
--- ATTENDU : ERREUR FOREIGN KEY constraint failed
+SELECT COUNT(*) AS amenity_gone FROM amenities WHERE id = '7c9fdf4d-99be-4b1c-8c2e-5aea5db0d0eb';
+-- ATTENDU : 0 (supprime)
+SELECT COUNT(*) AS link_gone FROM place_amenity WHERE amenity_id = '7c9fdf4d-99be-4b1c-8c2e-5aea5db0d0eb';
+-- ATTENDU : 0 (lien supprime en cascade)
 
--- TEST 5.7 — Supprimer user avec place (doit echouer)
-SELECT '-- TEST 5.7: Supprimer user proprietaire dune place (doit echouer)' AS test;
+-- Remettre WiFi pour la verification finale
+INSERT INTO amenities (id, name, created_at, updated_at)
+VALUES ('7c9fdf4d-99be-4b1c-8c2e-5aea5db0d0eb', 'WiFi', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+-- TEST 5.7 — Supprimer user proprietaire d'une place (CASCADE -> reussit)
+-- Notre schema: users -> places ON DELETE CASCADE, users -> reviews ON DELETE CASCADE
+SELECT '-- TEST 5.7: Supprimer user proprietaire dune place (CASCADE -> reussit)' AS test;
 DELETE FROM users WHERE id = '11111111-1111-1111-1111-111111111111';
--- ATTENDU : ERREUR FOREIGN KEY constraint failed
+SELECT COUNT(*) AS user_gone FROM users WHERE id = '11111111-1111-1111-1111-111111111111';
+-- ATTENDU : 0 (supprime)
+SELECT COUNT(*) AS places_gone FROM places WHERE owner_id = '11111111-1111-1111-1111-111111111111';
+-- ATTENDU : 0 (places supprimees en cascade)
+
+-- Remettre John et sa place pour les tests suivants
+INSERT INTO users (id, first_name, last_name, email, password, is_admin, created_at, updated_at)
+VALUES (
+    '11111111-1111-1111-1111-111111111111',
+    'Johnny', 'Doe', 'johnny@test.com',
+    '$2b$12$Z24N6SlkS8E6YEjB5weWseNPC8oPALbIfEIjM/AanPP9JuheGsZFq',
+    FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+);
+INSERT INTO places (id, title, description, price, latitude, longitude, owner_id, created_at, updated_at)
+VALUES (
+    'bbbb0001-0000-0000-0000-000000000000',
+    'Test Place', 'Nice place for testing',
+    99.99, 48.8566, 2.3522,
+    '11111111-1111-1111-1111-111111111111',
+    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+);
 
 -- TEST 5.8 — JOIN Place -> Owner -> Reviews -> Amenities
 SELECT '-- TEST 5.8: JOIN complet Place + Owner + Amenities' AS test;
