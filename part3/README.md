@@ -577,6 +577,121 @@ sqlite3 instance/development.db < tests/test_crud.sql
 
 ---
 
+### Unit tests (pytest) — 63 tests
+
+`tests_lite.py` is a **self-contained** test suite that uses an **in-memory SQLite database**. Each test gets a fresh DB — no server needed.
+
+```bash
+python3 -m unittest tests/tests_lite.py -v
+# or
+pytest tests/tests_lite.py -v
+# or run a specific class / test
+pytest tests/tests_lite.py::TestAuth -v
+pytest tests/tests_lite.py::TestReviewsCreate::test_doublon_review_interdit -v
+```
+
+The 63 tests are organized into **7 sections / 12 test classes**:
+
+#### Section 1 — Auth (5 tests) · `TestAuth`
+
+| Test | Verifies |
+|---|---|
+| `test_login_valide_retourne_token` | Valid login → 200 + JWT token |
+| `test_login_mauvais_mot_de_passe` | Wrong password → 401 |
+| `test_login_email_inexistant` | Unknown email → 401 |
+| `test_endpoint_protege_sans_token` | Protected endpoint without token → 401 |
+| `test_endpoint_protege_avec_token_admin` | Admin token on admin endpoint → 201 |
+
+#### Section 2 — Users (10 tests) · `TestUsersCreate` · `TestUsersRead` · `TestUsersUpdate`
+
+| Test | Verifies |
+|---|---|
+| `test_creer_user_valide` | Create user → 201, no password in response |
+| `test_email_duplique_rejete` | Duplicate email → 422 |
+| `test_get_user_par_id` | GET by ID → 200, no password |
+| `test_get_user_inexistant` | Unknown ID → 404 |
+| `test_lister_tous_les_users` | GET all → list with admin + created user |
+| `test_modifier_son_propre_prenom` | Owner updates own name → 200 |
+| `test_modifier_profil_autre_interdit` | Update another user's profile → 403 |
+| `test_modifier_email_via_put_interdit` | Email change via PUT → 400 |
+| `test_modifier_sans_token_interdit` | PUT without token → 401 |
+| `test_admin_peut_modifier_nimporte_quel_user` | Admin updates any user → 200 |
+
+#### Section 3 — Amenities (8 tests) · `TestAmenitiesCreate` · `TestAmenitiesReadUpdate`
+
+| Test | Verifies |
+|---|---|
+| `test_admin_cree_amenity` | Admin creates amenity → 201 |
+| `test_creer_sans_token` | Create without token → 401 |
+| `test_user_normal_cree_interdit` | Regular user creates → 403 |
+| `test_get_amenity_par_id` | GET by ID → 200 |
+| `test_get_amenity_inexistante` | Unknown ID → 404 |
+| `test_lister_toutes_les_amenities` | GET all → list |
+| `test_admin_modifie_amenity` | Admin updates amenity → 200 |
+| `test_user_normal_modifie_interdit` | Regular user updates → 403 |
+
+#### Section 4 — Places (13 tests) · `TestPlacesCreate` · `TestPlacesReadUpdate`
+
+| Test | Verifies |
+|---|---|
+| `test_creer_place_valide` | Authenticated user creates → 201 |
+| `test_creer_sans_token` | Create without token → 401 |
+| `test_prix_negatif_rejete` | Negative price → 400 |
+| `test_prix_zero_rejete` | Zero price → 400 |
+| `test_latitude_invalide` | Latitude out of range → 400 |
+| `test_longitude_invalide` | Longitude out of range → 400 |
+| `test_get_place_retourne_owner_et_amenities` | GET by ID includes owner + amenities |
+| `test_get_place_inexistante` | Unknown ID → 404 |
+| `test_lister_toutes_les_places` | GET all → list |
+| `test_owner_jwt_correct` | Place owner_id matches JWT user |
+| `test_proprietaire_modifie_sa_place` | Owner updates own place → 200 |
+| `test_non_proprietaire_modifie_interdit` | Non-owner updates → 403 |
+| `test_admin_modifie_place_dun_autre` | Admin updates any place → 200 |
+
+#### Section 5 — Reviews (18 tests) · `TestReviewsCreate` · `TestReviewsReadUpdateDelete`
+
+| Test | Verifies |
+|---|---|
+| `test_creer_review_valide` | Review another user's place → 201 |
+| `test_creer_sans_token` | Create without token → 401 |
+| `test_reviewer_sa_propre_place_interdit` | Owner reviews own place → 400 |
+| `test_doublon_review_interdit` | Duplicate review on same place → 400 |
+| `test_rating_trop_haut` | Rating > 5 → 400 |
+| `test_rating_trop_bas` | Rating = 0 → 400 |
+| `test_place_inexistante` | Review on unknown place → 400/404 |
+| `test_get_reviews_dune_place` | GET /places/id/reviews → list |
+| `test_get_reviews_place_inexistante` | Reviews of unknown place → 404 |
+| `test_get_review_par_id` | GET by ID → 200 |
+| `test_get_review_inexistante` | Unknown ID → 404 |
+| `test_auteur_modifie_sa_review` | Author updates own review → 200 |
+| `test_non_auteur_modifie_interdit` | Non-author updates → 403 |
+| `test_admin_modifie_review_dun_autre` | Admin updates any review → 200 |
+| `test_auteur_supprime_sa_review` | Author deletes own review → 200 |
+| `test_non_auteur_supprime_interdit` | Non-author deletes → 403 |
+| `test_admin_supprime_review_dun_autre` | Admin deletes any review → 200 |
+| `test_supprimer_review_inexistante` | Delete unknown review → 404 |
+
+#### Section 6 — Cascade Delete (4 tests) · `TestCascadeDelete`
+
+| Test | Verifies |
+|---|---|
+| `test_supprimer_place_supprime_ses_reviews` | Deleting a place removes its reviews (CASCADE) |
+| `test_place_supprimee_retourne_404` | Deleted place → GET returns 404 |
+| `test_review_supprimee_retourne_404` | Deleted review → GET returns 404 |
+| `test_reviews_place_inexistante_404` | Reviews of unknown place → 404 |
+
+#### Section 7 — RBAC (5 tests) · `TestRBAC`
+
+| Test | Verifies |
+|---|---|
+| `test_user_normal_cree_user_interdit` | Regular user creates user → 403 |
+| `test_user_normal_cree_amenity_interdit` | Regular user creates amenity → 403 |
+| `test_user_normal_modifie_amenity_interdit` | Regular user updates amenity → 403 |
+| `test_admin_bypass_ownership_place` | Admin updates non-owned place → 200 |
+| `test_admin_bypass_ownership_review` | Admin deletes non-authored review → 200 |
+
+---
+
 ## Test Results
 
 | Suite | Tests | Result |
@@ -584,6 +699,7 @@ sqlite3 instance/development.db < tests/test_crud.sql
 | `test_api.py` — HTTP API | 59/59 | ✅ All passed |
 | `run_tests.py` — DB Python | 65/68 | ✅ (3 expected FAIL) |
 | `test_crud.sql` — SQL direct | sections 0→3, 6→7 | ✅ |
+| `tests_lite.py` — Unit tests | 63/63 | ✅ All passed |
 
 > The 3 failures in `run_tests.py` (tests 3.10, 5.5, 5.6) are **intentional**: the project uses `ON DELETE CASCADE` on user→places and user→reviews, per the team's architecture decision. The test script was written expecting `RESTRICT` — this mismatch is documented and accepted.
 
