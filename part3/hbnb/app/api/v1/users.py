@@ -39,6 +39,10 @@ user_model = api.model('User', {
     'password': fields.String(
         required=True,
         description='Password of the user'
+    ),
+    'is_admin': fields.Boolean(
+        description='Whether the user has admin privileges',
+        default=False
     )
 })
 

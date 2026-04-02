@@ -44,7 +44,6 @@ place_model = api.model('Place', {
     'price': fields.Float(required=True, description='Price per night'),
     'latitude': fields.Float(required=True, description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
-    'owner_id': fields.String(description='Ignored - set automatically from JWT token'),
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
 })
 
@@ -158,8 +157,11 @@ class PlaceResource(Resource):
         if not is_admin and place.owner.id != current_user:
             return {'error': 'Unauthorized action'}, 403
 
+        place_data = api.payload
+        place_data.pop('owner_id', None)  # Ensure owner_id cannot be modified
+
         try:
-            facade.update_place(place_id, api.payload)
+            facade.update_place(place_id, place_data)
         except ValueError as e:
             return {'error': str(e)}, 400
 
