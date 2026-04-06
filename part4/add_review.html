@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HBnB — Add a Review</title>
+    <link rel="icon" type="image/png" href="images/icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header>
+        <a href="index.html">
+            <img src="images/logo.png" alt="HBnB Logo" class="logo">
+        </a>
+        <nav>
+            <a href="login.html" class="login-button" id="login-link">Login</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="review-page-wrapper">
+            <!--
+                FORMULAIRE DE REVIEW STANDALONE
+                id="review-form" → intercepté par scripts.js (Task 4)
+
+                Le h1 est rempli dynamiquement par JS :
+                "Reviewing: <nom de la place>"
+                Le h2 reste fixe.
+            -->
+            <form id="review-form">
+                <!-- Rempli par JS : "Reviewing: Beautiful Beach House" -->
+                <h1 id="place-title">Reviewing a Place</h1>
+                <h2>Add a Review</h2>
+
+                <label for="review">Your Review</label>
+                <textarea id="review" name="review"
+                          rows="5" required
+                          placeholder="Share your experience..."></textarea>
+
+                <label for="rating">Rating</label>
+                <select id="rating" name="rating" required>
+                    <option value="" disabled selected>Choose a rating</option>
+                    <option value="5">⭐⭐⭐⭐⭐  — Excellent (5/5)</option>
+                    <option value="4">⭐⭐⭐⭐   — Great (4/5)</option>
+                    <option value="3">⭐⭐⭐    — Good (3/5)</option>
+                    <option value="2">⭐⭐     — Fair (2/5)</option>
+                    <option value="1">⭐       — Poor (1/5)</option>
+                </select>
+
+                <button type="submit">Submit Review</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 HBnB Evolution. All rights reserved.</p>
+    </footer>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
