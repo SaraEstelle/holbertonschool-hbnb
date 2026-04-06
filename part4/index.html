@@ -2,59 +2,120 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name=""viewport" content="width=device-width, initila-scale=1.0">
-    <title>HBnB - Available Places</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HBnB - Find Your Perfect stay</title>
+    <meta name="description" content="Discover and book unique places to stay,curated by our community of passionate hosts. Find your perfect stay with HBnB.">
     <link rel="icon" type="image/png" href="images/icon.png">
     <!-- Google font Nunito -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <!--
-    HEADER - identique sur toutes les pages
-    - img.logo  <- classe obligatoire
-    - a.login-button <- classe obligatoire, id-"login-link" pour JS
-    -->
+    <!-- ==================================================
+        HEADER - logo + navbar +login/logout button
+        classes obligatoires: .logo .login-button
+    =================================================== -->
     <header>
-        <a href="index.html">
-            <img src=""images/logo.png" alt=""HBnB Logo" class=""logo">
-        </a>
-        <nav>
-            <!-- le Js remplace ce lien par "Logout" quand connecté-->
-            <a href="login.html" class=""login-button" id="login-link">Login</a>
-        </nav>
+        <div class="header-inner">
+            <a href="index.html" class="header-logo-link">
+                <img src="images/logo.png" alt="HBnB Logo" class="logo">
+            </a>
+
+            <!-- NAV BAR - liens principaux -->
+            <nav class="main-nav" aria-label="Main navigation">
+                <a href="index.html" class="nav-link active" aria-current="page">🏠 Home</a>
+                <a href="index.html#search-section" class="nav-link">🔍 Search</a>
+                <a href="index.html#places-list" class="nav-link">📍 Places</a>
+
+                <!-- Bouton Login / Logout - id="login-link" requis par JS -->
+                <nav class="header-auth" aria-label="Authentication">
+                    <a href="login.html" class="login-button" id="login-link">Login</a>
+            </nav>
+        </div>
     </header>
 
-    <!-- CONTENU PRINCIPAL-->
-    <main>
-        <h1 class=""page-title">Available Places</h1>
-        <p class=""page-subtitle">Find your perfect stay</p>
-
-        <!--
-            FILTRE PRIX
-            les options (ALL, $10, $50 ,$100) sont ajouté par scripts.js
-        -->
-        <section id=""filter">
-            <label for="price-filter">Price:</label>
-            <select id="price-filter">
-                <!-- Rempli dynamiquement par JS -->
-            </select>
+    <!--=========================================================
+            HERO - section commerciale avec titre et description
+        ======================================================-->
+        <section class="hero" aria-label="Welcome banner">
+            <div class="hero-content">
+                <span class="hero-badge"> Trusted by thousands of travelers</span>
+                <h1 class="hero-title">Find Your <span class="hero-accent">Perfect Stay</span></h1>
+            </div>
+                <p class="hero-desc">
+                    Discover unique places to stay, curated by our community of passionate hosts.
+                    From cozy studios to mountain chalets — your next adventure starts here.
+                </p>
+                <div class="hero-stats"aria-label="Platform statistics">
+                    <div class="hero-stat">
+                        <strong>1000+<strong>
+                        <span>Unique Places</span>
+                    </div>
+                    <div class="hero-stat-divider" aria-hidden="true"></div>
+                    <div class="hero-stat">
+                        <strong>50+</strong>
+                        <span>Countries</span>
+                    </div>
+                    <div class="hero-stat-divider" aria-hidden="true"></div>
+                    <div class="hero-stat">
+                        <strong>10K+</strong>
+                        <span>Happy Guests</span>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <!--
-            LISTE DES PLACES
-            les div place-card sont crées dunamiquement par scripts.js
-            -->
-            <section id="places-list">
+        <!-- ========================================
+            MAIN CONTENT
+        ======================================== -->
+    <main>
+
+        <!-- SECTION RECHERCHE & FILTRES -->
+        <section id="search-section" class="search-section" aria-label="Search and filters">
+            <h2 class="search-title">Available Places</h2>
+            <p class="section-subtitle">Find your perfect stay</p>
+
+            <div class="filters-bar">
+                <!-- Filtre texte (search par nom)-->
+                <div class="filter-group">
+                    <label for="search-input" class="filter-label">🔍 Search</label>
+                    <input
+                        type="text"
+                        id="search-input"
+                        class="filter-input"
+                        placeholder="Search by name..."
+                        aria-label="Search places by name"
+                    >
+                </div>
+
+                <!-- Filtre prix - option ajoutées par scripts.js -->
+                <div class="filter-group" id="filter">
+                    <label for="price-filter" class="filter-label">💰 Max Price</label>
+                    <select id="price-filter" aria-label="Filter by maximum price">
+
+                        <!-- Rempli dynamiquement par JS (ALL, $10, $50 ,$100) -->
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- LISTE DES PLACES - div.place-card créées par scripts.js -->
+        <section id="places-list" aria-live="polite" aria-label="List of available places">
                 <!-- Rempli dynamiquement par JS -->
-            </section>
+        </section>
     </main>
 
     <!--FOOTER - identique sur toutes les pages -->
     <footer>
-        <p>&copy 2026 HBnB Evolution. All rights reserved.</p>
+        <div class="footer-inner">
+            <p>&copy 2026 HBnB Evolution. All rights reserved.</p>
+            <nav class="footer-nav" aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="login.html">Login</a>
+            </nav>
+        </div>
     </footer>
 
     <!-- Toast notification (crée par Js) -->
