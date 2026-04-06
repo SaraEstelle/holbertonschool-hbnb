@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HBnB - Place Details</title>
+    <link rel="icon" type="image/png" href="images/icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header>
+        <a href="index.html">
+            <img src="images/logo.png" alt="HBnB Logo" class="logo">
+        </a>
+        <nav>
+            <a href="login.html" class="login-button" id="login-link">Login</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- SECTION DETAILS DE LA PLACE - classe obligatoire :place-details
+        pour les détails du lieu
+        Remplie dynamiquement par scripts.js
+        Le JS injecte un h1 + une div.place-info à l'intérieur
+        -->
+        <section id="place-details" class="place-details">
+            <!-- Le JS injecte ici :
+            <h1>Titre de la place</h1>
+            <div class="place-info">
+                host, prix, description, amenities
+            </div>
+            -->
+        </section>
+
+        <!--
+            SECTION REVIEWS
+            Remplie dynamiquement par scripts.js
+            le Js injecte des div.review-card à l'intérieur
+        -->
+        <section id="reviews">
+            <!-- Le JS injecte ici les div.review-card -->
+        </section>
+
+        <!--
+            SECTION ADD REVIEW - classe obligatoire : add-review
+            Cachée ou visible selon l'authentification (gérée par JS)
+            Contient un formulaire avec la classe obligatoire : form
+        -->
+        <section id="add-review">
+            <h2>Add a Review</h2>
+
+            <!--
+                Classe obligatoire : form (sur le formulaire dans #add-reviews)
+                id="review-form" -> intercepté par scripts.js
+            -->
+            <form id="review-form" class="form">
+                <label for="review-text">Your Review</label>
+                <textarea id="review-text" name="review-text"
+                rows="4" required placeholder="Share your experience with this place..."></textarea>
+
+                <label for="rating">Rating</label>
+                <select id="rating" name="rating" required>
+                    <option value="" disabled selected>Choose a rating</option>
+                    <option value="5">⭐⭐⭐⭐⭐ - Excellent (5/5)</option>
+                    <option value="4">⭐⭐⭐⭐ - Great (4/5)</option>
+                    <option value="3">⭐⭐⭐ - Good (3/5)</option>
+                    <option value="2">⭐⭐ - Fair (2/5)</option>
+                    <option value="1">⭐ - Poor (1/5)</option>
+                </select>
+
+                <button type="submit">Submit Review</button>
+            </form>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>© 2026 HBnB. All rights reserved.</p>
+    </footer>
+
+    <div class="toast" id="toast"></div>
+    <script src="scripts.js"></script>
+</body>
+</html>
