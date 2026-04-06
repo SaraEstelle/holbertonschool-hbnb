@@ -4,29 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HBnB - Place Details</title>
+    <meta name="description" content="View place details, reviews and add your own review on HBnB.">
     <link rel="icon" type="image/png" href="images/icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
+    <!-- ==================================================
+        HEADER
+        Classes obligatoires: .logo .login-button
+    =================================================== -->
     <header>
-        <a href="index.html">
+        <div class="header-inner">
+            <a href="index.html" class="header-logo-link">
             <img src="images/logo.png" alt="HBnB Logo" class="logo">
-        </a>
-        <nav>
-            <a href="login.html" class="login-button" id="login-link">Login</a>
-        </nav>
+            </a>
+
+            <nav class="main-nav" aria-label="Main Navigation">
+                <a href="index.html" class="nav-link">🏠 Home</a>
+                <a href="index.html#search-section" class="nav-link">🔍 Search</a>
+                <a href="index.html#places-list" class="nav-link">🏨 Places</a>
+                <a href="reviews" class="nav-link">⭐ Reviews</a>
+            </nav>
+
+            <nav class="header-auth" aria-label="Authentication">
+                <a href="login.html" class="login-button" id="login-link">Login</a>
+            </nav>
+        </div>
     </header>
 
+    <!-- ==================================================
+        MAIN
+    ===================================================-->
     <main>
-        <!-- SECTION DETAILS DE LA PLACE - classe obligatoire :place-details
+
+        <!-- BREADCRUMB - navigation retour -->
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <a href="index.html">&#8592; Back to places</a>
+        </nav>
+
+        <!-- SECTION DETAILS DE LA PLACE
+        Classe obligatoire :place-details
         pour les détails du lieu
         Remplie dynamiquement par scripts.js
-        Le JS injecte un h1 + une div.place-info à l'intérieur
+        Le JS injecte: photo + h1 + div.place-info
         -->
-        <section id="place-details" class="place-details">
+        <section id="place-details" class="place-details" aria-label="Place details">
             <!-- Le JS injecte ici :
             <h1>Titre de la place</h1>
             <div class="place-info">
@@ -40,7 +65,7 @@
             Remplie dynamiquement par scripts.js
             le Js injecte des div.review-card à l'intérieur
         -->
-        <section id="reviews">
+        <section id="reviews" aria-label="Guest reviews">
             <!-- Le JS injecte ici les div.review-card -->
         </section>
 
@@ -49,7 +74,7 @@
             Cachée ou visible selon l'authentification (gérée par JS)
             Contient un formulaire avec la classe obligatoire : form
         -->
-        <section id="add-review">
+        <section id="add-review" aria-label="Add a reviews">
             <h2>Add a Review</h2>
 
             <!--
@@ -58,8 +83,14 @@
             -->
             <form id="review-form" class="form">
                 <label for="review-text">Your Review</label>
-                <textarea id="review-text" name="review-text"
-                rows="4" required placeholder="Share your experience with this place..."></textarea>
+                <textarea
+                    id="review-text"
+                    name="review-text"
+                    rows="4"
+                    required
+                    placeholder="Share your experience with this place..."
+                    aria-required="true"
+                ></textarea>
 
                 <label for="rating">Rating</label>
                 <select id="rating" name="rating" required>
@@ -77,11 +108,20 @@
 
     </main>
 
+    <!-- ===============================================
+        FOOTER
+    ===================================================-->
     <footer>
-        <p>© 2026 HBnB. All rights reserved.</p>
+        <div class="footer-inner">
+        <p>© 2026 HBnB Evolution. All rights reserved.</p>
+        <nav class="footer-nav" aria-label="Footer navigation">
+            <a href="index.html">Home
+            <a href="login.html">Login</a>
+        </nav>
+        </div>
     </footer>
 
-    <div class="toast" id="toast"></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="scripts.js"></script>
 </body>
 </html>
