@@ -44,14 +44,15 @@ INSERT OR IGNORE INTO amenities (id, name, created_at, updated_at) VALUES
 -- =============================================================
 -- 3. UTILISATEURS DE DÉMO
 --    Mot de passe commun : pass1234
---    Hash bcrypt : $2b$12$Z24N6SlkS8E6YEjB5weWseNPC8oPALbIfEIjM/AanPP9JuheGsZFq
+--    Les hash bcrypt ci-dessous ont été générés via le backend
+--    (flask_bcrypt) pour garantir la compatibilité.
 -- =============================================================
 
 INSERT OR IGNORE INTO users (id, first_name, last_name, email, password, is_admin, created_at, updated_at)
 VALUES (
     'aaaa1111-0000-0000-0000-000000000001',
     'Sara', 'Dupont', 'sara@test.com',
-    '$2b$12$Z24N6SlkS8E6YEjB5weWseNPC8oPALbIfEIjM/AanPP9JuheGsZFq',
+    '$2b$12$SzfN8nVP8kP9EraJ4JT7SOgxITlJXSaKWN.0d8oBEPASBCJbY3yAW',
     FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 );
 
@@ -59,7 +60,7 @@ INSERT OR IGNORE INTO users (id, first_name, last_name, email, password, is_admi
 VALUES (
     'bbbb2222-0000-0000-0000-000000000002',
     'Marc', 'Bernard', 'marc@test.com',
-    '$2b$12$Z24N6SlkS8E6YEjB5weWseNPC8oPALbIfEIjM/AanPP9JuheGsZFq',
+    '$2b$12$I7LSxrCICg0YbYhu.8FjaeB5td8H4dn9J9k4qKqrR3YfkN6nIIX6W',
     FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 );
 
@@ -67,7 +68,7 @@ INSERT OR IGNORE INTO users (id, first_name, last_name, email, password, is_admi
 VALUES (
     'cccc3333-0000-0000-0000-000000000003',
     'Léa', 'Martin', 'lea@test.com',
-    '$2b$12$Z24N6SlkS8E6YEjB5weWseNPC8oPALbIfEIjM/AanPP9JuheGsZFq',
+    '$2b$12$yzIcFQytzWUyvJIZ6XQQDePTnAdIPkHLs1S/8SLTsRl9nvIBvjdpK',
     FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
 );
 
