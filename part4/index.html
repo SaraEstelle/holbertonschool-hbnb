@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HBnB - Find Your Perfect stay</title>
-    <meta name="description" content="Discover and book unique places to stay,curated by our community of passionate hosts. Find your perfect stay with HBnB.">
+    <title>HBnB - Find Your Perfect Stay</title>
+    <meta name="description" content="Discover and book unique places to stay, curated by our community of passionate hosts. Find your perfect stay with HBnB.">
     <link rel="icon" type="image/png" href="images/icon.png">
     <!-- Google font Nunito -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,8 +14,8 @@
 <body>
 
     <!-- ==================================================
-        HEADER - logo + navbar +login/logout button
-        classes obligatoires: .logo .login-button
+        HEADER - logo + navbar + login/logout button
+        Classes obligatoires : .logo  .login-button
     =================================================== -->
     <header>
         <div class="header-inner">
@@ -25,9 +25,11 @@
 
             <!-- NAV BAR - liens principaux -->
             <nav class="main-nav" aria-label="Main navigation">
-                <a href="index.html" class="nav-link active" aria-current="page">🏠 Home</a>
-                <a href="index.html#search-section" class="nav-link">🔍 Search</a>
-                <a href="index.html#places-list" class="nav-link">📍 Places</a>
+                <a href="index.html" class="nav-link active" aria-current="page">&#127968; Home</a>
+                <a href="index.html#search-section" class="nav-link">&#128269; Search</a>
+                <a href="index.html#places-list" class="nav-link">&#128205; Places</a>
+                <!-- Affiché uniquement quand connecté — géré par scripts.js -->
+                <a href="add_place.html" class="nav-link nav-add-place" id="add-place-link" style="display:none">&#43; Add Place</a>
             </nav>
 
             <!-- Bouton Login / Logout - id="login-link" requis par JS -->
@@ -37,39 +39,39 @@
         </div>
     </header>
 
-    <!--=========================================================
-            HERO - section commerciale avec titre et description
-        ======================================================-->
-        <section class="hero" aria-label="Welcome banner">
-            <div class="hero-content">
-                <span class="hero-badge"> Trusted by thousands of travelers</span>
-                <h1 class="hero-title">Find Your <span class="hero-accent">Perfect Stay</span></h1>
-            </div>
-                <p class="hero-desc">
-                    Discover unique places to stay, curated by our community of passionate hosts.
-                    From cozy studios to mountain chalets — your next adventure starts here.
-                </p>
-                <div class="hero-stats"aria-label="Platform statistics">
-                    <div class="hero-stat">
-                        <strong>1000+</strong>
-                        <span>Unique Places</span>
-                    </div>
-                    <div class="hero-stat-divider" aria-hidden="true"></div>
-                    <div class="hero-stat">
-                        <strong>50+</strong>
-                        <span>Countries</span>
-                    </div>
-                    <div class="hero-stat-divider" aria-hidden="true"></div>
-                    <div class="hero-stat">
-                        <strong>10K+</strong>
-                        <span>Happy Guests</span>
-                    </div>
+    <!-- =====================================================
+        HERO - section commerciale avec titre et description
+    ====================================================== -->
+    <section class="hero" aria-label="Welcome banner">
+        <div class="hero-content">
+            <span class="hero-badge">Trusted by thousands of travelers</span>
+            <h1 class="hero-title">Find Your <span class="hero-accent">Perfect Stay</span></h1>
+            <p class="hero-desc">
+                Discover unique places to stay, curated by our community of passionate hosts.
+                From cozy studios to mountain chalets — your next adventure starts here.
+            </p>
+            <div class="hero-stats" aria-label="Platform statistics">
+                <div class="hero-stat">
+                    <strong>1000+</strong>
+                    <span>Unique Places</span>
                 </div>
-        </section>
+                <div class="hero-stat-divider" aria-hidden="true"></div>
+                <div class="hero-stat">
+                    <strong>50+</strong>
+                    <span>Countries</span>
+                </div>
+                <div class="hero-stat-divider" aria-hidden="true"></div>
+                <div class="hero-stat">
+                    <strong>10K+</strong>
+                    <span>Happy Guests</span>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <!-- ========================================
-            MAIN CONTENT
-        ======================================== -->
+    <!-- ======================================================
+        MAIN CONTENT
+    ======================================================= -->
     <main>
 
         <!-- SECTION RECHERCHE & FILTRES -->
@@ -78,9 +80,9 @@
             <p class="section-subtitle">Find your perfect stay</p>
 
             <div class="filters-bar">
-                <!-- Filtre texte (search par nom)-->
+                <!-- Filtre texte (search par nom) -->
                 <div class="filter-group">
-                    <label for="search-input" class="filter-label">🔍 Search</label>
+                    <label for="search-input" class="filter-label">&#128269; Search</label>
                     <input
                         type="text"
                         id="search-input"
@@ -90,12 +92,11 @@
                     >
                 </div>
 
-                <!-- Filtre prix - option ajoutées par scripts.js -->
+                <!-- Filtre prix - options ajoutées par scripts.js -->
                 <div class="filter-group" id="filter">
-                    <label for="price-filter" class="filter-label">💰 Max Price</label>
+                    <label for="price-filter" class="filter-label">&#128176; Max Price</label>
                     <select id="price-filter" aria-label="Filter by maximum price">
-
-                        <!-- Rempli dynamiquement par JS (ALL, $10, $50 ,$100) -->
+                        <!-- Rempli dynamiquement par JS (All, $10, $50, $100) -->
                     </select>
                 </div>
             </div>
@@ -103,14 +104,15 @@
 
         <!-- LISTE DES PLACES - div.place-card créées par scripts.js -->
         <section id="places-list" aria-live="polite" aria-label="List of available places">
-                <!-- Rempli dynamiquement par JS -->
+            <!-- Rempli dynamiquement par JS -->
         </section>
+
     </main>
 
-    <!--FOOTER - identique sur toutes les pages -->
+    <!-- FOOTER -->
     <footer>
         <div class="footer-inner">
-            <p>&copy 2026 HBnB Evolution. All rights reserved.</p>
+            <p>&copy; 2026 HBnB Evolution. All rights reserved.</p>
             <nav class="footer-nav" aria-label="Footer navigation">
                 <a href="index.html">Home</a>
                 <a href="login.html">Login</a>
@@ -118,10 +120,10 @@
         </div>
     </footer>
 
-    <!-- Toast notification (crée par Js) -->
-    <div class="toast" id="toast"></div>
+    <!-- Toast notification (créé par JS) -->
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-    <!-- Script chargé en dernier pour le DOM soit pret -->
+    <!-- Script chargé en dernier pour que le DOM soit prêt -->
     <script src="scripts.js"></script>
 </body>
 </html>
