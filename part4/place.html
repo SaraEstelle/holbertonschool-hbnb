@@ -14,18 +14,19 @@
 
     <!-- ==================================================
         HEADER
-        Classes obligatoires: .logo .login-button
+        Classes obligatoires : .logo  .login-button
     =================================================== -->
     <header>
         <div class="header-inner">
             <a href="index.html" class="header-logo-link">
-            <img src="images/logo.png" alt="HBnB Logo" class="logo">
+                <img src="images/logo.png" alt="HBnB Logo" class="logo">
             </a>
 
-            <nav class="main-nav" aria-label="Main Navigation">
-                <a href="index.html" class="nav-link">🏠 Home</a>
-                <a href="index.html#search-section" class="nav-link">🔍 Search</a>
-                <a href="index.html#places-list" class="nav-link">🏨 Places</a>
+            <nav class="main-nav" aria-label="Main navigation">
+                <a href="index.html" class="nav-link">&#127968; Home</a>
+                <a href="index.html#search-section" class="nav-link">&#128269; Search</a>
+                <a href="index.html#places-list" class="nav-link">&#128205; Places</a>
+                <a href="add_place.html" class="nav-link nav-add-place" id="add-place-link" style="display:none">&#43; Add Place</a>
             </nav>
 
             <nav class="header-auth" aria-label="Authentication">
@@ -36,7 +37,7 @@
 
     <!-- ==================================================
         MAIN
-    ===================================================-->
+    =================================================== -->
     <main>
 
         <!-- BREADCRUMB - navigation retour -->
@@ -44,43 +45,38 @@
             <a href="index.html">&#8592; Back to places</a>
         </nav>
 
-        <!-- SECTION DETAILS DE LA PLACE
-        Classe obligatoire :place-details
-        pour les détails du lieu
-        Remplie dynamiquement par scripts.js
-        Le JS injecte: photo + h1 + div.place-info
+        <!--
+            SECTION DETAILS DE LA PLACE
+            Classe obligatoire : place-details
+            Remplie dynamiquement par scripts.js.
+            Le JS injecte : photo + h1 + div.place-info
         -->
         <section id="place-details" class="place-details" aria-label="Place details">
-            <!-- Le JS injecte ici :
-            <h1>Titre de la place</h1>
-            <div class="place-info">
-                host, prix, description, amenities
-            </div>
-            -->
+            <!-- Injecté par scripts.js -->
         </section>
 
         <!--
             SECTION REVIEWS
-            Remplie dynamiquement par scripts.js
-            le Js injecte des div.review-card à l'intérieur
+            Remplie dynamiquement par scripts.js.
+            Le JS injecte des div.review-card à l'intérieur.
         -->
         <section id="reviews" aria-label="Guest reviews">
-            <!-- Le JS injecte ici les div.review-card -->
+            <!-- Injecté par scripts.js -->
         </section>
 
         <!--
-            SECTION ADD REVIEW - classe obligatoire : add-review
-            Cachée ou visible selon l'authentification (gérée par JS)
+            SECTION ADD REVIEW - Classe obligatoire : add-review
+            Affichée ou cachée selon l'authentification (gérée par JS).
             Contient un formulaire avec la classe obligatoire : form
         -->
-        <section id="add-review" aria-label="Add a reviews">
+        <section id="add-review" aria-label="Add a review">
             <h2>Add a Review</h2>
 
             <!--
-                Classe obligatoire : form (sur le formulaire dans #add-reviews)
-                id="review-form" -> intercepté par scripts.js
+                Classe obligatoire : form
+                id="review-form" -> intercepté par scripts.js (Task 3)
             -->
-            <form id="review-form" class="form">
+            <form id="review-form" class="form" novalidate>
                 <label for="review-text">Your Review</label>
                 <textarea
                     id="review-text"
@@ -92,13 +88,13 @@
                 ></textarea>
 
                 <label for="rating">Rating</label>
-                <select id="rating" name="rating" required>
+                <select id="rating" name="rating" required aria-required="true">
                     <option value="" disabled selected>Choose a rating</option>
-                    <option value="5">⭐⭐⭐⭐⭐ - Excellent (5/5)</option>
-                    <option value="4">⭐⭐⭐⭐ - Great (4/5)</option>
-                    <option value="3">⭐⭐⭐ - Good (3/5)</option>
-                    <option value="2">⭐⭐ - Fair (2/5)</option>
-                    <option value="1">⭐ - Poor (1/5)</option>
+                    <option value="5">&#11088;&#11088;&#11088;&#11088;&#11088; - Excellent (5/5)</option>
+                    <option value="4">&#11088;&#11088;&#11088;&#11088; - Great (4/5)</option>
+                    <option value="3">&#11088;&#11088;&#11088; - Good (3/5)</option>
+                    <option value="2">&#11088;&#11088; - Fair (2/5)</option>
+                    <option value="1">&#11088; - Poor (1/5)</option>
                 </select>
 
                 <button type="submit">Submit Review</button>
@@ -107,16 +103,14 @@
 
     </main>
 
-    <!-- ===============================================
-        FOOTER
-    ===================================================-->
+    <!-- FOOTER -->
     <footer>
         <div class="footer-inner">
-        <p>© 2026 HBnB Evolution. All rights reserved.</p>
-        <nav class="footer-nav" aria-label="Footer navigation">
-            <a href="index.html">Home
-            <a href="login.html">Login</a>
-        </nav>
+            <p>&copy; 2026 HBnB Evolution. All rights reserved.</p>
+            <nav class="footer-nav" aria-label="Footer navigation">
+                <a href="index.html">Home</a>
+                <a href="login.html">Login</a>
+            </nav>
         </div>
     </footer>
 
