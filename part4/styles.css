@@ -1,11 +1,16 @@
 /*
-  styles.css — HBnB Part 4 — Enhanced Design
-  Palette : orange #F7A92D, dark #1a1a2e, light grays
-  Font    : Nunito via Google Fonts
+  styles.css — HBnB Part 4 — Version finale
+  ==========================================
+  Palette : orange #F7A92D, dark #1a1a2e, grays
+  Police  : Nunito (Google Fonts)
 
-  CLASSES OBLIGATOIRES PRÉSENTES :
+  CLASSES OBLIGATOIRES (exigées par le correcteur) :
   .logo  .login-button  .place-card  .details-button
   .place-details  .place-info  .review-card  .add-review  .form
+
+  NOUVELLES CLASSES (add_place.html) :
+  .add-place-wrapper  .form-section  .form-row  .amenities-checkboxes
+  .amenity-checkbox-label  .nav-add-place  .btn-cancel  .search-title
 */
 
 /* ================================================================
@@ -24,6 +29,8 @@
     --gray-mid:      #d0d0e0;
     --gray-text:     #666680;
     --gray-border:   #e0e0ea;
+    --green:         #22C55E;
+    --red:           #EF4444;
     --card-shadow:   0 4px 20px rgba(26, 26, 46, 0.10);
     --card-hover:    0 10px 40px rgba(247, 169, 45, 0.22);
     --header-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
@@ -83,7 +90,7 @@ header {
     text-decoration: none;
 }
 
-/* Classe obligatoire */
+/* ─── CLASSE OBLIGATOIRE : .logo ─── */
 .logo {
     height: 40px;
     width: auto;
@@ -91,9 +98,7 @@ header {
 }
 .logo:hover { transform: scale(1.06); opacity: 0.9; }
 
-/* ----------------------------------------------------------------
-   NAVBAR PRINCIPALE
-   ---------------------------------------------------------------- */
+/* ── NAVBAR ────────────────────────────────────────────────── */
 .main-nav {
     display: flex;
     align-items: center;
@@ -110,6 +115,9 @@ header {
     border-radius: 8px;
     transition: color var(--transition), background var(--transition);
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
 }
 .nav-link:hover,
 .nav-link.active {
@@ -121,16 +129,26 @@ header {
     background: rgba(247, 169, 45, 0.12);
 }
 
-/* ----------------------------------------------------------------
-   AUTH NAV (Login / Logout)
-   ---------------------------------------------------------------- */
+/* Lien "Add Place" — style légèrement mis en valeur */
+.nav-add-place {
+    color: var(--orange);
+    border: 1px solid rgba(247, 169, 45, 0.35);
+    background: rgba(247, 169, 45, 0.08);
+}
+.nav-add-place:hover {
+    color: var(--dark);
+    background: var(--orange);
+    border-color: var(--orange);
+}
+
+/* ── AUTH (Login / Logout) ────────────────────────────────── */
 .header-auth {
     display: flex;
     align-items: center;
     flex-shrink: 0;
 }
 
-/* Classe obligatoire */
+/* ─── CLASSE OBLIGATOIRE : .login-button ─── */
 .login-button {
     background-color: var(--orange);
     color: var(--dark);
@@ -153,7 +171,6 @@ header {
     box-shadow: 0 4px 16px var(--orange-glow);
 }
 
-/* Bouton Logout */
 .logout-button {
     background: transparent;
     color: var(--orange);
@@ -177,7 +194,7 @@ header {
 }
 
 /* ================================================================
-   HERO — Section commerciale
+   HERO
    ================================================================ */
 .hero {
     background: linear-gradient(135deg, var(--dark) 0%, var(--dark-soft) 50%, #2a1a4e 100%);
@@ -186,7 +203,6 @@ header {
     position: relative;
     overflow: hidden;
 }
-
 .hero::before {
     content: '';
     position: absolute;
@@ -197,13 +213,11 @@ header {
     background: radial-gradient(circle, rgba(247, 169, 45, 0.12) 0%, transparent 70%);
     pointer-events: none;
 }
-
 .hero-content {
     position: relative;
     max-width: 720px;
     margin: 0 auto;
 }
-
 .hero-badge {
     display: inline-block;
     background: rgba(247, 169, 45, 0.15);
@@ -216,7 +230,6 @@ header {
     margin-bottom: 20px;
     letter-spacing: 0.3px;
 }
-
 .hero-title {
     font-size: clamp(2rem, 5vw, 3.4rem);
     font-weight: 900;
@@ -225,11 +238,7 @@ header {
     margin-bottom: 16px;
     letter-spacing: -1px;
 }
-
-.hero-accent {
-    color: var(--orange);
-}
-
+.hero-accent { color: var(--orange); }
 .hero-desc {
     font-size: 1.1rem;
     color: rgba(255, 255, 255, 0.65);
@@ -239,16 +248,13 @@ header {
     margin-right: auto;
     line-height: 1.7;
 }
-
 .hero-stats {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0;
     flex-wrap: wrap;
     gap: 12px;
 }
-
 .hero-stat {
     display: flex;
     flex-direction: column;
@@ -256,12 +262,7 @@ header {
     gap: 2px;
     padding: 0 28px;
 }
-.hero-stat strong {
-    font-size: 1.8rem;
-    font-weight: 900;
-    color: var(--orange);
-    line-height: 1;
-}
+.hero-stat strong { font-size: 1.8rem; font-weight: 900; color: var(--orange); line-height: 1; }
 .hero-stat span {
     font-size: 12px;
     font-weight: 700;
@@ -269,13 +270,7 @@ header {
     text-transform: uppercase;
     letter-spacing: 0.8px;
 }
-
-.hero-stat-divider {
-    width: 1px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.15);
-    flex-shrink: 0;
-}
+.hero-stat-divider { width: 1px; height: 40px; background: rgba(255, 255, 255, 0.15); flex-shrink: 0; }
 
 /* ================================================================
    MAIN
@@ -291,11 +286,9 @@ main {
 /* ================================================================
    SECTION SEARCH & FILTERS
    ================================================================ */
-.search-section {
-    text-align: center;
-    margin-bottom: 40px;
-}
+.search-section { text-align: center; margin-bottom: 40px; }
 
+.search-title,
 .section-title {
     font-size: 2rem;
     font-weight: 900;
@@ -303,12 +296,7 @@ main {
     margin-bottom: 6px;
     letter-spacing: -0.5px;
 }
-
-.section-subtitle {
-    color: var(--gray-text);
-    font-size: 1rem;
-    margin-bottom: 28px;
-}
+.section-subtitle { color: var(--gray-text); font-size: 1rem; margin-bottom: 28px; }
 
 .filters-bar {
     display: flex;
@@ -324,13 +312,7 @@ main {
     margin: 0 auto;
     border: 1px solid var(--gray-border);
 }
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
+.filter-group { display: flex; flex-direction: column; gap: 4px; }
 .filter-label {
     font-size: 11px;
     font-weight: 800;
@@ -338,7 +320,6 @@ main {
     letter-spacing: 0.8px;
     color: var(--gray-text);
 }
-
 #search-input {
     padding: 9px 16px;
     border-radius: 10px;
@@ -352,10 +333,7 @@ main {
     transition: border-color var(--transition), background var(--transition);
     min-width: 200px;
 }
-#search-input:focus {
-    border-color: var(--orange);
-    background: white;
-}
+#search-input:focus { border-color: var(--orange); background: white; }
 
 #price-filter {
     padding: 9px 14px;
@@ -382,8 +360,8 @@ main {
     gap: 24px;
 }
 
-/* Carte place — CLASSE OBLIGATOIRE
-   Paramètres fixes : margin:20px padding:10px border:1px solid #ddd border-radius:10px */
+/* ─── CLASSE OBLIGATOIRE : .place-card ───
+   Paramètres fixes imposés : margin:20px padding:10px border:1px solid #ddd border-radius:10px */
 .place-card {
     background: white;
     margin: 20px;
@@ -396,7 +374,7 @@ main {
     flex-direction: column;
     overflow: hidden;
     cursor: pointer;
-    /* Override margins pour la grille — on garde les 20px de padding/margin interne */
+    /* Reset margin pour la grille CSS */
     margin: 0;
 }
 .place-card:hover {
@@ -404,26 +382,21 @@ main {
     box-shadow: var(--card-hover);
     border-color: var(--orange);
 }
-
-/* Photo de la place */
 .place-card-photo {
-    width: 100%;
+    width: calc(100% + 4px);
     height: 200px;
     object-fit: cover;
     border-radius: 8px;
     margin: -2px -2px 0 -2px;
-    width: calc(100% + 4px);
     display: block;
     background-color: var(--gray-mid);
 }
-
 .place-card-body {
     padding: 14px 8px 4px;
     display: flex;
     flex-direction: column;
     flex: 1;
 }
-
 .place-card h2 {
     font-size: 1.05rem;
     font-weight: 800;
@@ -431,7 +404,6 @@ main {
     margin-bottom: 6px;
     line-height: 1.3;
 }
-
 .place-card .price-tag {
     display: inline-block;
     background: var(--orange-light);
@@ -443,7 +415,7 @@ main {
     margin-bottom: 14px;
 }
 
-/* Bouton View Details — CLASSE OBLIGATOIRE */
+/* ─── CLASSE OBLIGATOIRE : .details-button ─── */
 .details-button {
     background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
     color: var(--dark);
@@ -466,7 +438,6 @@ main {
     box-shadow: 0 4px 16px var(--orange-glow);
 }
 
-/* Messages vide / chargement */
 .no-places-msg,
 .loading-msg {
     grid-column: 1 / -1;
@@ -475,9 +446,6 @@ main {
     color: var(--gray-text);
     font-size: 1.05rem;
     font-weight: 600;
-}
-.loading-msg::before {
-    content: '⏳ ';
 }
 
 /* ================================================================
@@ -490,7 +458,6 @@ main {
     justify-content: center;
     padding: 40px 20px;
 }
-
 #login-form {
     background: white;
     padding: 48px 40px;
@@ -500,13 +467,7 @@ main {
     max-width: 440px;
     border: 1px solid var(--gray-mid);
 }
-
-.login-logo-wrapper {
-    text-align: center;
-    font-size: 2.5rem;
-    margin-bottom: 16px;
-}
-
+.login-logo-wrapper { text-align: center; font-size: 2.5rem; margin-bottom: 16px; }
 #login-form h2 {
     text-align: center;
     font-size: 1.8rem;
@@ -514,13 +475,7 @@ main {
     color: var(--dark);
     margin-bottom: 6px;
 }
-
-.form-subtitle {
-    text-align: center;
-    color: var(--gray-text);
-    font-size: 14px;
-    margin-bottom: 28px;
-}
+.form-subtitle { text-align: center; color: var(--gray-text); font-size: 14px; margin-bottom: 28px; }
 
 .form-group { margin-bottom: 20px; }
 .form-group label {
@@ -532,7 +487,9 @@ main {
     text-transform: uppercase;
     letter-spacing: 0.6px;
 }
-.form-group input {
+.form-group input,
+.form-group textarea,
+.form-group select {
     width: 100%;
     padding: 12px 16px;
     border: 2px solid var(--gray-mid);
@@ -544,10 +501,9 @@ main {
     outline: none;
     transition: border-color var(--transition), background var(--transition);
 }
-.form-group input:focus {
-    border-color: var(--orange);
-    background: white;
-}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus { border-color: var(--orange); background: white; }
 
 .btn-primary {
     width: 100%;
@@ -563,10 +519,8 @@ main {
     transition: all var(--transition);
     margin-top: 8px;
 }
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px var(--orange-glow);
-}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--orange-glow); }
+.btn-primary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; box-shadow: none; }
 
 .error-message {
     background: #FEE2E2;
@@ -579,13 +533,12 @@ main {
     margin-bottom: 20px;
     display: none;
 }
-
 .login-demo-hint {
     text-align: center;
     font-size: 12px;
     color: var(--gray-text);
     margin-top: 20px;
-    line-height: 1.6;
+    line-height: 1.8;
 }
 .login-demo-hint code {
     background: var(--gray-light);
@@ -599,9 +552,7 @@ main {
 /* ================================================================
    BREADCRUMB
    ================================================================ */
-.breadcrumb {
-    margin-bottom: 24px;
-}
+.breadcrumb { margin-bottom: 24px; }
 .breadcrumb a {
     color: var(--gray-text);
     text-decoration: none;
@@ -618,10 +569,8 @@ main {
    PAGE PLACE DETAILS
    ================================================================ */
 
-/* Classe obligatoire */
-.place-details {
-    margin-bottom: 48px;
-}
+/* ─── CLASSE OBLIGATOIRE : .place-details ─── */
+.place-details { margin-bottom: 48px; }
 
 .place-photo {
     width: 100%;
@@ -631,7 +580,6 @@ main {
     margin-bottom: 28px;
     box-shadow: var(--card-shadow);
 }
-
 #place-details h1 {
     font-size: 2.2rem;
     font-weight: 900;
@@ -640,7 +588,8 @@ main {
     letter-spacing: -0.5px;
 }
 
-/* Classe obligatoire */
+/* ─── CLASSE OBLIGATOIRE : .place-info ───
+   Paramètres fixes : border:1px solid #ddd border-radius:10px padding:10px */
 .place-info {
     background: white;
     border: 1px solid #ddd;
@@ -653,13 +602,7 @@ main {
     grid-template-columns: 1fr 1fr;
     gap: 24px;
 }
-
-.place-info-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
+.place-info-item { display: flex; flex-direction: column; gap: 4px; }
 .place-info-label {
     font-size: 11px;
     font-weight: 800;
@@ -667,27 +610,10 @@ main {
     letter-spacing: 1px;
     color: var(--gray-text);
 }
+.place-info-value { font-size: 1.05rem; font-weight: 700; color: var(--dark); }
+.place-info-value.price { color: var(--orange-dark); font-size: 1.5rem; font-weight: 900; }
 
-.place-info-value {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: var(--dark);
-}
-
-.place-info-value.price {
-    color: var(--orange-dark);
-    font-size: 1.5rem;
-    font-weight: 900;
-}
-
-/* Amenities avec icônes */
-.amenities-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 4px;
-}
-
+.amenities-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
 .amenity-tag {
     background: var(--orange-light);
     color: var(--orange-dark);
@@ -701,26 +627,13 @@ main {
     gap: 6px;
 }
 
-.amenity-icon {
-    font-size: 15px;
-}
-
 /* ================================================================
    SECTION REVIEWS
    ================================================================ */
-#reviews {
-    margin-bottom: 48px;
-}
+#reviews { margin-bottom: 48px; }
+#reviews h2 { font-size: 1.6rem; font-weight: 900; color: var(--dark); margin-bottom: 24px; letter-spacing: -0.3px; }
 
-#reviews h2 {
-    font-size: 1.6rem;
-    font-weight: 900;
-    color: var(--dark);
-    margin-bottom: 24px;
-    letter-spacing: -0.3px;
-}
-
-/* Carte review — CLASSE OBLIGATOIRE
+/* ─── CLASSE OBLIGATOIRE : .review-card ───
    Paramètres fixes : margin:20px padding:10px border:1px solid #ddd border-radius:10px */
 .review-card {
     background: white;
@@ -735,7 +648,6 @@ main {
     transition: box-shadow var(--transition);
 }
 .review-card:hover { box-shadow: var(--card-hover); }
-
 .review-card .reviewer-name {
     font-weight: 900;
     font-size: 1rem;
@@ -745,7 +657,6 @@ main {
     align-items: center;
     gap: 8px;
 }
-
 .reviewer-avatar {
     width: 32px;
     height: 32px;
@@ -759,25 +670,14 @@ main {
     color: var(--dark);
     flex-shrink: 0;
 }
-
-.review-card .review-text {
-    color: var(--gray-text);
-    font-size: 0.95rem;
-    margin-bottom: 12px;
-    line-height: 1.65;
-}
-
-.stars {
-    color: var(--orange);
-    font-size: 1.1rem;
-    letter-spacing: 2px;
-}
+.review-card .review-text { color: var(--gray-text); font-size: .95rem; margin-bottom: 12px; line-height: 1.65; }
+.stars { color: var(--orange); font-size: 1.1rem; letter-spacing: 2px; }
 
 /* ================================================================
-   SECTION ADD REVIEW
+   SECTION ADD REVIEW (inline dans place.html)
    ================================================================ */
 
-/* Classe obligatoire */
+/* ─── CLASSE OBLIGATOIRE : #add-review ─── */
 #add-review {
     background: white;
     border: 1px solid #ddd;
@@ -788,7 +688,6 @@ main {
     box-shadow: var(--card-shadow);
     margin-top: 48px;
 }
-
 #add-review h2 {
     font-size: 1.5rem;
     font-weight: 900;
@@ -798,7 +697,7 @@ main {
     border-bottom: 2px solid var(--gray-light);
 }
 
-/* Classe obligatoire */
+/* ─── CLASSE OBLIGATOIRE : .form ─── */
 #add-review .form label,
 #review-form label {
     display: block;
@@ -809,7 +708,6 @@ main {
     color: var(--dark);
     margin-bottom: 7px;
 }
-
 #add-review .form textarea,
 #add-review .form select,
 #review-form textarea,
@@ -827,13 +725,9 @@ main {
     resize: vertical;
     transition: border-color var(--transition), background var(--transition);
 }
-
 #add-review .form textarea:focus,
 #review-form textarea:focus,
-#review-form select:focus {
-    border-color: var(--orange);
-    background: white;
-}
+#review-form select:focus { border-color: var(--orange); background: white; }
 
 #add-review .form button,
 #review-form button[type="submit"] {
@@ -848,22 +742,13 @@ main {
     cursor: pointer;
     transition: all var(--transition);
 }
-
 #add-review .form button:hover,
-#review-form button[type="submit"]:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px var(--orange-glow);
-}
+#review-form button[type="submit"]:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--orange-glow); }
 
 /* ================================================================
    PAGE ADD_REVIEW STANDALONE
    ================================================================ */
-.review-page-wrapper {
-    max-width: 620px;
-    margin: 0 auto;
-    padding: 20px 0 60px;
-}
-
+.review-page-wrapper { max-width: 620px; margin: 0 auto; padding: 20px 0 60px; }
 #review-form {
     background: white;
     padding: 44px 48px;
@@ -871,22 +756,196 @@ main {
     border: 1px solid var(--gray-mid);
     box-shadow: var(--card-shadow);
 }
+#review-form h1 { font-size: 1rem; font-weight: 700; color: var(--gray-text); text-align: center; margin-bottom: 4px; }
+#review-form h2 { font-size: 1.9rem; font-weight: 900; color: var(--dark); text-align: center; margin-bottom: 36px; letter-spacing: -0.5px; }
 
-#review-form h1 {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--gray-text);
-    text-align: center;
-    margin-bottom: 4px;
+/* ================================================================
+   PAGE ADD_PLACE — Formulaire d'ajout de place
+   ================================================================ */
+.add-place-wrapper {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 0 60px;
 }
 
-#review-form h2 {
-    font-size: 1.9rem;
-    font-weight: 900;
-    color: var(--dark);
+.add-place-header {
     text-align: center;
     margin-bottom: 36px;
+}
+.add-place-header h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--dark);
+    margin-bottom: 8px;
     letter-spacing: -0.5px;
+}
+.add-place-subtitle { color: var(--gray-text); font-size: 1rem; }
+
+/* Fieldset (section du formulaire) */
+.form-section {
+    background: white;
+    border: 1px solid var(--gray-border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    box-shadow: var(--card-shadow);
+}
+.form-section legend {
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--orange-dark);
+    padding: 0 8px;
+    margin-left: -8px;
+}
+
+/* Labels du formulaire add_place */
+.form-section .form-group { margin-bottom: 20px; }
+.form-section .form-group:last-child { margin-bottom: 0; }
+.form-section label {
+    display: block;
+    font-weight: 800;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--dark);
+    margin-bottom: 7px;
+}
+.form-section input[type="text"],
+.form-section input[type="number"],
+.form-section textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--gray-mid);
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    color: var(--dark);
+    background: var(--gray-light);
+    outline: none;
+    transition: border-color var(--transition), background var(--transition);
+}
+.form-section input:focus,
+.form-section textarea:focus { border-color: var(--orange); background: white; }
+.form-section textarea { resize: vertical; min-height: 120px; }
+
+/* Champ avec préfixe $ */
+.input-with-prefix {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--gray-mid);
+    border-radius: 10px;
+    background: var(--gray-light);
+    overflow: hidden;
+    transition: border-color var(--transition);
+}
+.input-with-prefix:focus-within { border-color: var(--orange); background: white; }
+.input-prefix {
+    padding: 12px 14px;
+    font-weight: 900;
+    font-size: 15px;
+    color: var(--orange-dark);
+    background: var(--orange-light);
+    flex-shrink: 0;
+}
+.input-with-prefix input {
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    color: var(--dark);
+    outline: none;
+}
+
+/* Disposition en deux colonnes pour latitude/longitude */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Astérisque champ obligatoire */
+.required-star { color: var(--red); margin-left: 2px; }
+
+/* Indications contextuelles */
+.field-hint {
+    display: block;
+    font-size: 11.5px;
+    color: var(--gray-text);
+    margin-top: 5px;
+    font-weight: 600;
+}
+.location-tip { margin-top: 12px; font-size: 13px; }
+.location-tip a { color: var(--orange-dark); text-decoration: underline; }
+.location-tip a:hover { color: var(--orange); }
+
+/* Checkboxes amenities */
+.amenities-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+.amenity-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--gray-border);
+    background: var(--gray-light);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--dark);
+    transition: all var(--transition);
+    user-select: none;
+}
+.amenity-checkbox-label:hover { border-color: var(--orange); background: var(--orange-light); }
+.amenity-checkbox-label input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+.amenity-checkbox-label:has(input:checked) {
+    border-color: var(--orange);
+    background: var(--orange-light);
+    color: var(--orange-dark);
+}
+.amenity-checkbox-text { display: inline-flex; align-items: center; gap: 5px; }
+.loading-amenities { color: var(--gray-text); font-size: 13px; font-weight: 600; }
+
+/* Boutons d'action du formulaire add_place */
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+}
+.btn-cancel {
+    padding: 13px 24px;
+    border-radius: var(--radius-btn);
+    border: 2px solid var(--gray-mid);
+    background: transparent;
+    color: var(--gray-text);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    text-decoration: none;
+    transition: all var(--transition);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+}
+.btn-cancel:hover { border-color: var(--dark); color: var(--dark); }
+.btn-submit-place {
+    width: auto;
+    padding: 13px 32px;
+    font-size: 15px;
+    margin-top: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
 /* ================================================================
@@ -910,8 +969,8 @@ main {
     pointer-events: none;
     max-width: 340px;
 }
-.toast.toast-success { border-left: 4px solid #22C55E; }
-.toast.toast-error   { border-left: 4px solid #EF4444; }
+.toast.toast-success { border-left: 4px solid var(--green); }
+.toast.toast-error   { border-left: 4px solid var(--red); }
 .toast.show          { transform: translateY(0); opacity: 1; }
 
 /* ================================================================
@@ -923,7 +982,6 @@ footer {
     padding: 24px 32px;
     margin-top: auto;
 }
-
 .footer-inner {
     max-width: 1280px;
     margin: 0 auto;
@@ -933,38 +991,17 @@ footer {
     gap: 16px;
     flex-wrap: wrap;
 }
-
-.footer-inner p {
-    font-size: 13px;
-}
-
-.footer-nav {
-    display: flex;
-    gap: 20px;
-}
-
-.footer-nav a {
-    color: rgba(255, 255, 255, 0.45);
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-    transition: color var(--transition);
-}
+.footer-inner p { font-size: 13px; }
+.footer-nav { display: flex; gap: 20px; }
+.footer-nav a { color: rgba(255,255,255,.45); text-decoration: none; font-size: 13px; font-weight: 600; transition: color var(--transition); }
 .footer-nav a:hover { color: var(--orange); }
 
 /* ================================================================
    RESPONSIVE
    ================================================================ */
 @media (max-width: 768px) {
-    .header-inner {
-        padding: 0 16px;
-        gap: 12px;
-        height: 60px;
-    }
-
-    .main-nav {
-        display: none; /* Caché sur mobile pour rester épuré */
-    }
+    .header-inner { padding: 0 16px; gap: 12px; height: 60px; }
+    .main-nav { display: none; }
 
     .hero { padding: 48px 20px 40px; }
     .hero-title { font-size: 1.9rem; }
@@ -974,36 +1011,32 @@ footer {
 
     main { padding: 28px 16px 60px; }
 
-    .filters-bar {
-        flex-direction: column;
-        border-radius: 16px;
-        padding: 16px 20px;
-        width: 100%;
-    }
+    .filters-bar { flex-direction: column; border-radius: 16px; padding: 16px 20px; width: 100%; }
     #search-input { min-width: 100%; }
 
-    #places-list {
-        grid-template-columns: 1fr;
-        gap: 0;
-    }
+    #places-list { grid-template-columns: 1fr; gap: 0; }
     .place-card { margin: 0 0 20px 0; }
 
     .place-info { grid-template-columns: 1fr; }
+
+    .form-row { grid-template-columns: 1fr; }
+    .form-section { padding: 20px; }
+    .add-place-wrapper { padding: 0 0 40px; }
+    .form-actions { flex-direction: column-reverse; align-items: stretch; }
+    .btn-cancel { text-align: center; justify-content: center; }
+    .btn-submit-place { width: 100%; justify-content: center; }
 
     #login-form { padding: 32px 24px; }
     #review-form { padding: 28px 24px; }
     #add-review { padding: 24px 20px; }
 
-    .footer-inner {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
-    }
-
+    .footer-inner { flex-direction: column; text-align: center; gap: 10px; }
     .toast { left: 16px; right: 16px; bottom: 16px; max-width: none; }
 }
 
 @media (max-width: 480px) {
     .hero-title { font-size: 1.6rem; }
-    .section-title { font-size: 1.5rem; }
+    .section-title,
+    .search-title { font-size: 1.5rem; }
+    .add-place-header h1 { font-size: 1.6rem; }
 }
